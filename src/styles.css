@@ -658,14 +658,15 @@ img { max-width: 100%; display: block; }
   flex: 0 1 auto;
   max-width: 100%;
   max-height: 100%;
-  padding: 20px;
+  padding: 48px;
   z-index: 2;
   will-change: transform;
+  overflow: hidden;
 }
 .hero-figure img {
   display: block;
-  max-width: min(100%, 520px);
-  max-height: min(100%, 560px);
+  max-width: 100%;
+  max-height: min(100%, 520px);
   width: auto;
   height: auto;
   object-fit: contain;
@@ -1042,7 +1043,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 56px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1728,11 +1729,10 @@ img { max-width: 100%; display: block; }
   .hero-actions { align-items: center; margin-top: 24px; }
   .hero-aside { order: 2; align-items: center; }
   .hero-figure { min-height: 280px; overflow: hidden; }
-  .hero-figure .img-wrap { padding: 12px; width: 100%; box-sizing: border-box; }
+  .hero-figure .img-wrap { width: 100%; box-sizing: border-box; }
   .hero-figure img {
     max-width: 100%;
-    max-height: 460px;
-    width: 100%;
+    max-height: 420px;
     animation: hero-in 1.4s cubic-bezier(.2,.7,.2,1) 0.4s forwards;
   }
   .rail .container { grid-template-columns: repeat(2, 1fr); }
@@ -1762,12 +1762,6 @@ img { max-width: 100%; display: block; }
     height: auto;
     aspect-ratio: 4 / 3;
     width: 100%;
-  }
-  .page-hero-figure__media.media-frame--match-height img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    max-width: 100%;
   }
   /* grids */
   .what-you-get, .benefits-grid { grid-template-columns: 1fr; }
