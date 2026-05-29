@@ -43,10 +43,10 @@ const TICKER = [
   const FOOTER = {
     brand: "OPUS Media Lab",
     description:
-      "A performance-driven digital marketing agency helping ambitious brands grow through strategy, creative, paid media, and conversion optimization.",
+      "A performance-driven digital marketing agency serving Southern California and the Inland Empire — helping ambitious brands grow through strategy, creative, paid media, and conversion optimization.",
     office: {
-      label: "California Office",
-      address: "Temecula / Orange County, California",
+      label: "Southern California Office",
+      address: "Temecula, CA · Serving the Inland Empire & SoCal",
     },
     columns: [
       {
@@ -334,7 +334,7 @@ const TICKER = [
       heroImageAlt: "Glitch-rendered figures representing digital marketing",
       subtitle: "Marketing strategies engineered for measurable impact.",
       intro:
-        "Digital marketing moves fast. We help brands stay focused on the channels, messages, and campaigns most likely to drive growth.",
+        "Digital marketing moves fast. We help brands stay focused on the channels, messages, and campaigns most likely to drive growth. As a Southern California digital marketing agency rooted in Temecula, we work with businesses across the Inland Empire, Riverside County, San Bernardino County, Orange County, and the greater Los Angeles area.",
       services: [
         "Google and Bing Ads", "Meta Ads", "TikTok Ads", "LinkedIn Ads",
         "Pinterest Ads", "Amazon Ads", "Reddit and Quora Ads", "Native Advertising",
@@ -402,7 +402,7 @@ const TICKER = [
       heroImageAlt: "Glitch-rendered figures representing SEO",
       subtitle: "Get found by customers already searching for you.",
       intro:
-        "SEO builds durable visibility in organic search. We combine technical foundations, keyword strategy, on-page optimization, and content aligned to search intent so your brand earns qualified traffic without paying for every click.",
+        "SEO builds durable visibility in organic search. We combine technical foundations, keyword strategy, on-page optimization, and content aligned to search intent so your brand earns qualified traffic without paying for every click. Based in Temecula, we specialize in local and regional SEO for businesses across Southern California and the Inland Empire — from Riverside and San Bernardino to Orange County and San Diego.",
       services: [
         "Technical SEO", "Keyword Research", "On-Page SEO", "Local SEO",
         "Content Optimization", "Link Building Strategy", "SEO Audits", "Analytics Reporting",
@@ -424,6 +424,7 @@ const TICKER = [
       ],
       faqs: [
         { q: "What is SEO?",                         a: "The practice of improving your site so it ranks higher in organic search and attracts qualified visitors." },
+        { q: "Do you offer local SEO for Southern California businesses?", a: "Yes. We specialize in local and regional SEO for businesses in Temecula, Murrieta, Riverside, San Bernardino, Ontario, Rancho Cucamonga, Escondido, San Diego, and across the Inland Empire and greater SoCal." },
         { q: "How long does SEO take to show results?", a: "Meaningful movement often appears in 3–6 months; competitive terms can take longer with consistent execution." },
         { q: "Do you handle technical SEO?",         a: "Yes — site speed, indexing, structure, schema, and crawl issues are part of every engagement." },
         { q: "Can SEO work alongside paid ads?",     a: "Absolutely. SEO and paid search reinforce each other — we align keyword strategy across both." },
@@ -631,7 +632,8 @@ const TICKER = [
 
   const HOME_FAQS = [
     { q: "What does OPUS Media Lab do differently?",                a: "We operate as an in-house growth team — strategy, creative, paid, and analytics under one roof — focused on revenue, not deliverables." },
-    { q: "What industries do you work with?",                       a: "Wellness, beauty, fashion, renewable energy, fintech, real estate, B2B SaaS, food and beverage, and more." },
+    { q: "What areas do you serve?",                                a: "We are based in Temecula and serve businesses across Southern California and the Inland Empire, including Murrieta, Riverside, San Bernardino, Ontario, Rancho Cucamonga, Corona, Escondido, San Diego, Orange County, and the greater Los Angeles area." },
+    { q: "What industries do you work with?",                       a: "Wellness, beauty, fashion, renewable energy, fintech, real estate, B2B SaaS, food and beverage, and more — across SoCal and beyond." },
     { q: "Can we schedule a consultation before committing?",       a: "Yes. A free 30-minute call is the right starting point for almost every engagement." },
     { q: "Do you work with both B2B and B2C companies?",            a: "Yes — and our team is structured to specialize on the playbook that fits your model." },
   ];
