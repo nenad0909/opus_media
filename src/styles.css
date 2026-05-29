@@ -1691,14 +1691,21 @@ img { max-width: 100%; display: block; }
   .header-menu-toggle { display: inline-flex; }
   .hero { padding-bottom: 60px; }
   .hero-inner { grid-template-columns: 1fr; }
-  .hero-aside { order: 2; }
+  .hero-copy { align-items: center; text-align: center; }
+  .hero-meta { justify-content: center; }
+  .hero-copy .lede { text-align: center; max-width: 600px; }
+  .hero-actions { align-items: center; }
+  .hero-aside { order: 2; align-items: center; }
   .hero-figure { min-height: 320px; }
   .hero-actions { margin-top: 24px; }
   .rail .container { grid-template-columns: repeat(2, 1fr); }
   .scroll-hint { display: none; }
   .badge { width: 96px; height: 96px; }
-  .section-head { grid-template-columns: 1fr; gap: 24px; }
+  .section-head { grid-template-columns: 1fr; gap: 24px; text-align: center; }
+  .section-head .eyebrow { align-self: center; }
   .page-hero .container { grid-template-columns: 1fr; gap: 32px; }
+  .page-hero-copy { text-align: center; align-items: center; }
+  .page-hero-copy .eyebrow { align-self: center; }
   .page-hero-figure { align-self: auto; }
   .page-hero-figure__media.media-frame--match-height {
     flex: none;
@@ -1714,7 +1721,8 @@ img { max-width: 100%; display: block; }
   .team-grid { grid-template-columns: repeat(2, 1fr); }
   .goal-tabs { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
-  .cta-strip .container { grid-template-columns: 1fr; }
+  .cta-strip .container { grid-template-columns: 1fr; text-align: center; }
+  .cta-strip .container .eyebrow { align-self: center; }
   .footer .footer-top { grid-template-columns: 1fr 1fr; }
   .top-service-row { grid-template-columns: 60px 1fr auto; gap: 16px; }
   .top-service-row .tag { display: none; }
@@ -1727,13 +1735,24 @@ img { max-width: 100%; display: block; }
 @media (max-width: 700px) {
   .headline { font-size: clamp(48px, 12vw, 72px); }
   .rail .container { grid-template-columns: 1fr 1fr; gap: 18px; }
+  .rail-stat { text-align: center; }
   .card-grid.cols-3, .card-grid.cols-2, .blog-grid, .testimonials { grid-template-columns: 1fr; }
   .portfolio-grid { grid-template-columns: 1fr; }
   .span-4, .span-6, .span-8, .span-12 { grid-column: span 1; }
   .process { grid-template-columns: 1fr; }
+  .process-step { text-align: center; align-items: center; }
   .team-grid { grid-template-columns: 1fr; }
+  .team-card { text-align: center; }
   .form { grid-template-columns: 1fr; }
   .form .field-full, .form .checkbox-row { grid-column: span 1; }
   .footer .footer-top { grid-template-columns: 1fr; }
+  .footer .footer-brand { text-align: center; align-items: center; }
+  .footer .footer-bottom { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
   .value-row { grid-template-columns: 1fr; gap: 8px; }
+  .section-head { text-align: center; }
+  .section-head .section-body { text-align: left; }
+  .goal-tab-labels { justify-content: center; }
+  .cta-strip .container { text-align: center; }
+  .hero-actions .btn-lime,
+  .hero-actions .btn-ghost { max-width: 420px; width: 100%; }
 }
