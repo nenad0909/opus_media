@@ -1727,7 +1727,14 @@ img { max-width: 100%; display: block; }
   .hero-copy .lede { text-align: center; max-width: 600px; margin-left: auto; margin-right: auto; }
   .hero-actions { align-items: center; margin-top: 24px; }
   .hero-aside { order: 2; align-items: center; }
-  .hero-figure { min-height: 320px; }
+  .hero-figure { min-height: 280px; overflow: hidden; }
+  .hero-figure .img-wrap { padding: 12px; width: 100%; box-sizing: border-box; }
+  .hero-figure img {
+    max-width: 100%;
+    max-height: 460px;
+    width: 100%;
+    animation: hero-in 1.4s cubic-bezier(.2,.7,.2,1) 0.4s forwards;
+  }
   .rail .container { grid-template-columns: repeat(2, 1fr); }
   .scroll-hint { display: none; }
   .badge { width: 96px; height: 96px; }
@@ -1749,11 +1756,18 @@ img { max-width: 100%; display: block; }
   .page-hero-copy { text-align: center; align-items: center; }
   .page-hero-copy .eyebrow { align-self: center; }
   .page-hero-copy .lede { margin-left: auto; margin-right: auto; }
-  .page-hero-figure { align-self: auto; }
+  .page-hero-figure { align-self: auto; overflow: hidden; }
   .page-hero-figure__media.media-frame--match-height {
     flex: none;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+  }
+  .page-hero-figure__media.media-frame--match-height img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 100%;
   }
   /* grids */
   .what-you-get, .benefits-grid { grid-template-columns: 1fr; }
