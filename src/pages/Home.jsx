@@ -157,11 +157,11 @@ export function HomePage() {
             title="Your growth partner from research to revenue"
             body="When you partner with OPUS Media Lab, you gain a focused team that studies your market, sharpens your positioning, and builds campaigns around measurable business outcomes. We help brands enter new markets, increase demand, and turn attention into revenue." />
           
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, marginTop: 32 }} className="home-stats">
+          <div className="home-stats">
             {HOME_STATS.map((s, i) =>
-            <div key={i} style={{ borderTop: "1px solid var(--line-2)", paddingTop: 18 }}>
-                <div style={{ fontFamily: "var(--display)", fontSize: 56, lineHeight: 1, color: "var(--lime)" }}>{s.value}</div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.16em", color: "var(--muted)", textTransform: "uppercase", marginTop: 10 }}>{s.label}</div>
+            <div key={i}>
+                <div className="stat-value">{s.value}</div>
+                <div className="stat-label">{s.label}</div>
               </div>
             )}
           </div>
@@ -181,7 +181,7 @@ export function HomePage() {
             <ServiceCategoryCard key={s.id} index={i + 1} {...s} />
             )}
           </div>
-          <div style={{ marginTop: 40, display: "flex", gap: 12 }}>
+          <div className="section-btn-row">
             <BtnGhost to="/services">See all services</BtnGhost>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function HomePage() {
           <div className="card-grid cols-3">
             {featured.map((c) => <CaseCard key={c.slug} c={c} />)}
           </div>
-          <div style={{ marginTop: 40 }}>
+          <div className="section-btn-row">
             <BtnGhost to="/case-studies">Browse all case studies</BtnGhost>
           </div>
         </div>

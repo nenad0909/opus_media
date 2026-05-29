@@ -572,7 +572,7 @@ export function RouteWipe({ route }) {
 // ---------------------------------------------------------------
 export function SectionHead({ eyebrow, title, body }) {
   return (
-    <div className="section-head" style={{ textAlign: "left" }}>
+    <div className="section-head">
       <div>
         {eyebrow && <div className="eyebrow">{eyebrow}</div>}
         <AnimatedTitle text={title} className="title-lg" baseDelay={0.05} step={0.05} as="h2" />
