@@ -12,12 +12,10 @@ import {
 const TWEAK_DEFAULTS = {
   accent: "#D6FF3D",
   ctaColor: "#FF6A1A",
-  wordmark: false,
   ticker: true,
   hud: true,
   badge: true,
   corners: true,
-  scan: true,
   rail: true,
   cursorGlow: true,
   grid: true,
@@ -30,12 +28,10 @@ function TweaksApp() {
 
   useEffect(() => {
     const body = document.body;
-    body.dataset.wordmark = t.wordmark ? "on" : "off";
     body.dataset.ticker = t.ticker ? "on" : "off";
     body.dataset.hud = t.hud ? "on" : "off";
     body.dataset.badge = t.badge ? "on" : "off";
     body.dataset.corners = t.corners ? "on" : "off";
-    body.dataset.scan = t.scan ? "on" : "off";
     body.dataset.rail = t.rail ? "on" : "off";
     body.dataset.cursorGlow = t.cursorGlow ? "on" : "off";
     body.dataset.grid = t.grid ? "on" : "off";
@@ -55,19 +51,9 @@ function TweaksApp() {
     <TweaksPanel>
       <TweakSection label="Hero" />
       <TweakToggle
-        label="Background wordmark"
-        value={t.wordmark}
-        onChange={(v) => setTweak("wordmark", v)}
-      />
-      <TweakToggle
         label="Corner brackets"
         value={t.corners}
         onChange={(v) => setTweak("corners", v)}
-      />
-      <TweakToggle
-        label="Scanline overlay"
-        value={t.scan}
-        onChange={(v) => setTweak("scan", v)}
       />
       <TweakRadio
         label="Glitch flashes"

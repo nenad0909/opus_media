@@ -104,7 +104,6 @@ function Hero() {
       <div className="hero-aside">
       <div className="hero-figure" ref={figRef}>
         <div className="glow" aria-hidden="true"></div>
-        <div className="wordmark" aria-hidden="true"><span>OPUS&nbsp;&nbsp;OPUS</span></div>
 
         <div className="img-wrap" ref={imgWrapRef}>
           <span className="frame-corner tl" aria-hidden="true"></span>
@@ -115,7 +114,6 @@ function Hero() {
             src="/assets/hero_main.png"
             alt="Three figures in motion, rendered with chromatic glitch effect"
           />
-          <div className="scan" aria-hidden="true"></div>
         </div>
       </div>
 
