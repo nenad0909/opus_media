@@ -148,10 +148,15 @@ export function ServiceDetailPage({ slug }) {
       {/* Service list (chips) */}
       <section className="section tight">
         <div className="container">
-          <SectionHead eyebrow="What we do" title={"Inside " + service.title} />
-          <ul className="chip-list">
-            {service.services.map((s) => <li key={s}>{s}</li>)}
-          </ul>
+          <div className="inside-service">
+            <div className="inside-service__head">
+              <div className="eyebrow">What we do</div>
+              <AnimatedTitle text={"Inside " + service.title} className="title-lg" baseDelay={0.05} step={0.05} as="h2" />
+            </div>
+            <ul className="chip-list">
+              {service.services.map((s) => <li key={s}>{s}</li>)}
+            </ul>
+          </div>
         </div>
       </section>
 
