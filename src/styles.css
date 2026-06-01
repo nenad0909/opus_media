@@ -1478,7 +1478,7 @@ img { max-width: 100%; display: block; }
   color: rgba(244,244,244,0.85);
   transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
-.chip-list li:hover { background: var(--lime); color: #0A0E16; border-color: var(--lime); }
+.chip-list li.is-active { background: var(--lime); color: #0A0E16; border-color: var(--lime); }
 
 .inside-service {
   display: grid;

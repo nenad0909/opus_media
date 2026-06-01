@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SITE } from "../content.js";
 import {
   Link,
@@ -153,9 +153,7 @@ export function ServiceDetailPage({ slug }) {
               <div className="eyebrow">What we do</div>
               <AnimatedTitle text={"Inside " + service.title} className="title-lg" baseDelay={0.05} step={0.05} as="h2" />
             </div>
-            <ul className="chip-list">
-              {service.services.map((s) => <li key={s}>{s}</li>)}
-            </ul>
+            <ChipList items={service.services} />
           </div>
         </div>
       </section>
@@ -213,6 +211,25 @@ export function ServiceDetailPage({ slug }) {
 
       <CtaStrip heading={"Ready to grow with " + service.title.toLowerCase() + "?"} />
     </>
+  );
+}
+
+function ChipList({ items }) {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActive(i => (i + 1) % items.length);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [items.length]);
+
+  return (
+    <ul className="chip-list">
+      {items.map((s, i) => (
+        <li key={s} className={i === active ? "is-active" : ""}>{s}</li>
+      ))}
+    </ul>
   );
 }
 
