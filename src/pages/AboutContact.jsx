@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SITE } from "../content.js";
-import { submitContactInquiry } from "../lib/contact.js";
+import { submitConsultation } from "../lib/contact.js";
 import {
   Link,
   PageHero,
@@ -69,11 +69,23 @@ export function AboutPage() {
 // ---------------------------------------------------------------
 // Contact
 // ---------------------------------------------------------------
+const INITIAL_FORM = {
+  first: "",
+  last: "",
+  email: "",
+  company: "",
+  website: "",
+  message: "",
+  consent: false,
+  companyWebsite: "",
+};
+
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ first: "", last: "", email: "", company: "", message: "", consent: false });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [form, setForm] = useState(INITIAL_FORM);
   const upd = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
 
   const onSubmit = async (e) => {
@@ -82,10 +94,24 @@ export function ContactPage() {
     setSubmitting(true);
     setError("");
     try {
-      await submitContactInquiry(form);
+      const messageParts = [];
+      if (form.last.trim()) messageParts.push(`Last name: ${form.last.trim()}`);
+      if (form.message.trim()) messageParts.push(form.message.trim());
+      const result = await submitConsultation({
+        email: form.email,
+        firstName: form.first,
+        businessName: form.company,
+        website: form.website,
+        message: messageParts.join("\n\n"),
+        companyWebsite: form.companyWebsite,
+      });
+      setSuccessMessage(
+        result.message || "Thank you. Please check your email to schedule your consultation.",
+      );
+      setForm(INITIAL_FORM);
       setSubmitted(true);
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "We could not send your request. Please try again in a moment.");
     } finally {
       setSubmitting(false);
     }
@@ -121,13 +147,29 @@ export function ContactPage() {
 
             <div>
               {submitted ? (
-                <div style={{ padding: 48, border: "1px solid var(--lime)", background: "rgba(214,255,61,0.04)" }}>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  style={{ padding: 48, border: "1px solid var(--lime)", background: "rgba(214,255,61,0.04)" }}
+                >
                   <div className="eyebrow">Message received</div>
-                  <h2 className="title-md">Thank you — we'll be in touch.</h2>
+                  <h2 className="title-md">{successMessage}</h2>
                   <p className="body" style={{ marginTop: 12 }}>We typically reply within one business day. In the meantime, feel free to explore our <Link to="/case-studies" style={{ color: "var(--lime)", borderBottom: "1px solid var(--lime)" }}>case studies</Link>.</p>
                 </div>
               ) : (
-                <form className="form" onSubmit={onSubmit}>
+                <form className="form" onSubmit={onSubmit} noValidate>
+                  <div className="field field-honeypot" aria-hidden="true">
+                    <label htmlFor="companyWebsite">Company website</label>
+                    <input
+                      id="companyWebsite"
+                      type="text"
+                      name="companyWebsite"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={form.companyWebsite}
+                      onChange={upd("companyWebsite")}
+                    />
+                  </div>
                   <div className="field">
                     <label>First name</label>
                     <input type="text" required value={form.first} onChange={upd("first")} />
@@ -145,6 +187,10 @@ export function ContactPage() {
                     <input type="text" value={form.company} onChange={upd("company")} />
                   </div>
                   <div className="field field-full">
+                    <label>Website <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
+                    <input type="url" value={form.website} onChange={upd("website")} placeholder="https://" />
+                  </div>
+                  <div className="field field-full">
                     <label>Message</label>
                     <textarea required value={form.message} onChange={upd("message")} placeholder="A sentence or two about what you're working on…" />
                   </div>
@@ -153,10 +199,10 @@ export function ContactPage() {
                     <span>I agree to the <Link to="/privacy" style={{ color: "var(--lime)" }}>privacy policy</Link> and consent to OPUS Media Lab contacting me about my inquiry.</span>
                   </label>
                   {error ? (
-                    <p className="body" style={{ color: "#ff6b6b", marginTop: 8 }}>{error}</p>
+                    <p className="body" role="alert" style={{ color: "#ff6b6b", marginTop: 8 }}>{error}</p>
                   ) : null}
                   <div className="field-full">
-                    <button type="submit" className="btn-lime" disabled={submitting}>
+                    <button type="submit" className="btn-lime" disabled={submitting} aria-busy={submitting}>
                       <span>{submitting ? "Sending…" : "Send a message"}</span>
                       <span className="arrow-circle">
                         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">

@@ -1,0 +1,2 @@
+[functions.submit-consultation]
+verify_jwt = false

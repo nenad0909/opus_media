@@ -1671,6 +1671,17 @@ img { max-width: 100%; display: block; }
 .form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .form .field-full { grid-column: span 2; }
 .field { display: flex; flex-direction: column; gap: 8px; }
+.field-honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .field label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
 .field input, .field textarea {
   width: 100%;
