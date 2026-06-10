@@ -1,7 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { buildTemplateValues, renderTemplate } from "../_shared/render-template.ts";
-import { FIELD_LIMITS, normalizeEmail, trimField } from "../_shared/validation.ts";
+import {
+  FIELD_LIMITS,
+  normalizeEmail,
+  normalizeResendReplyTo,
+  resolveResendFrom,
+  trimField,
+} from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,7 +81,9 @@ Deno.serve(async (req) => {
     return friendlyError(400);
   }
 
-  if (String(payload.companyWebsite ?? "").trim()) {
+  const honeypot = String(payload.companyWebsite ?? "").trim();
+  const websiteRaw = String(payload.website ?? "").trim();
+  if (honeypot && honeypot.toLowerCase() !== websiteRaw.toLowerCase()) {
     return jsonResponse({ ok: true, message: "Thank you. Please check your email to schedule your consultation." });
   }
 
@@ -162,10 +170,18 @@ Deno.serve(async (req) => {
     (brandRows ?? []).map((row) => [row.setting_key, row.setting_value]),
   ) as Record<string, string>;
 
-  // Supabase ↔ Resend integration sets RESEND_API_KEY only (Auth SMTP).
-  // Sender/reply-to come from brand_settings (editable without redeploy).
-  const resendFrom = Deno.env.get("RESEND_FROM") ?? brandSettings.SENDER_FROM;
-  const resendReplyTo = Deno.env.get("RESEND_REPLY_TO") ?? brandSettings.REPLY_TO_EMAIL;
+  const resendReplyTo = normalizeResendReplyTo(
+    Deno.env.get("RESEND_REPLY_TO") ?? brandSettings.REPLY_TO_EMAIL,
+  );
+  const agencyName = brandSettings.AGENCY_NAME ?? "OPUS Media Lab";
+
+  // Try env secret, then brand_settings, then build from agency + reply email.
+  const resendFrom = resolveResendFrom([
+    Deno.env.get("RESEND_FROM"),
+    brandSettings.SENDER_FROM,
+    resendReplyTo ? `${agencyName} <${resendReplyTo}>` : null,
+    resendReplyTo,
+  ]) ?? "";
 
   const htmlValues = buildTemplateValues(brandSettings, firstName, { html: true });
   const textValues = buildTemplateValues(brandSettings, firstName);

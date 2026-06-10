@@ -77,7 +77,7 @@ const INITIAL_FORM = {
   website: "",
   message: "",
   consent: false,
-  companyWebsite: "",
+  _hp: "",
 };
 
 export function ContactPage() {
@@ -103,7 +103,7 @@ export function ContactPage() {
         businessName: form.company,
         website: form.website,
         message: messageParts.join("\n\n"),
-        companyWebsite: form.companyWebsite,
+        companyWebsite: form._hp,
       });
       setSuccessMessage(
         result.message || "Thank you. Please check your email to schedule your consultation.",
@@ -158,18 +158,16 @@ export function ContactPage() {
                 </div>
               ) : (
                 <form className="form" onSubmit={onSubmit} noValidate>
-                  <div className="field field-honeypot" aria-hidden="true">
-                    <label htmlFor="companyWebsite">Company website</label>
-                    <input
-                      id="companyWebsite"
-                      type="text"
-                      name="companyWebsite"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      value={form.companyWebsite}
-                      onChange={upd("companyWebsite")}
-                    />
-                  </div>
+                  <input
+                    className="field-honeypot"
+                    type="text"
+                    name="_hp"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form._hp}
+                    onChange={upd("_hp")}
+                    aria-hidden="true"
+                  />
                   <div className="field">
                     <label>First name</label>
                     <input type="text" required value={form.first} onChange={upd("first")} />
