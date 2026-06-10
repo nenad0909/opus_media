@@ -1796,14 +1796,10 @@ img { max-width: 100%; display: block; }
   .hero-figure { min-height: 0; margin-top: 0; overflow: visible; }
   .hero-figure .img-wrap { width: 100%; box-sizing: border-box; }
   .hero-figure { justify-content: center; }
-  .hero-glitch-stack { transform: translateX(72px); }
-  .hero-figure.is-page-loaded .hero-glitch-stack {
-    animation: hero-enter-toward-title 5s ease-in-out forwards;
-  }
+  .hero-glitch-stack { transform: none; }
+  .hero-figure.is-page-loaded .hero-glitch-stack { animation: none; }
+  .hero-figure.is-page-loaded .hero-glitch-stack__ghost { animation: none; opacity: 0; }
   .hero-glitch-stack img { max-width: 100%; }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-glitch-stack { transform: translateX(-32px); }
-  }
   .rail .container { grid-template-columns: repeat(2, 1fr); }
   .scroll-hint { display: none; }
   .badge { width: 96px; height: 96px; }

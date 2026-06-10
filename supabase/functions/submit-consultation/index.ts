@@ -120,7 +120,8 @@ Deno.serve(async (req) => {
   if (recentLead?.confirmation_sent_at) {
     return jsonResponse({
       ok: true,
-      message: "Thank you. Please check your email to schedule your consultation.",
+      message:
+        "Thank you. We already sent a confirmation email to this address — please check your inbox and spam folder. You can submit again with the same email after 15 minutes if needed.",
     });
   }
 
