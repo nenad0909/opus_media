@@ -1,19 +1,21 @@
-const SUBMIT_CONSULTATION_URL = import.meta.env.VITE_SUBMIT_CONSULTATION_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+import {
+  submitConsultationUrl,
+  supabasePublishableKey,
+} from "../config/supabase.js";
 
 export async function submitConsultation(payload) {
-  if (!SUBMIT_CONSULTATION_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  if (!submitConsultationUrl || !supabasePublishableKey) {
     throw new Error(
-      "Consultation form is not configured. Add VITE_SUBMIT_CONSULTATION_URL and VITE_SUPABASE_PUBLISHABLE_KEY to .env",
+      "Consultation form is not configured. Set VITE_SUPMIT_CONSULTATION_URL and VITE_SUPABASE_PUBLISHABLE_KEY, then restart the dev server or rebuild.",
     );
   }
 
-  const res = await fetch(SUBMIT_CONSULTATION_URL, {
+  const res = await fetch(submitConsultationUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${supabasePublishableKey}`,
+      apikey: supabasePublishableKey,
     },
     body: JSON.stringify(payload),
   });

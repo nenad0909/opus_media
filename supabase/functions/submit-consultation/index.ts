@@ -90,8 +90,6 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  const resendFrom = Deno.env.get("RESEND_FROM");
-  const resendReplyTo = Deno.env.get("RESEND_REPLY_TO");
 
   if (!supabaseUrl || !serviceRoleKey) {
     console.error("Missing Supabase server configuration");
@@ -164,20 +162,31 @@ Deno.serve(async (req) => {
     (brandRows ?? []).map((row) => [row.setting_key, row.setting_value]),
   ) as Record<string, string>;
 
+  // Supabase ↔ Resend integration sets RESEND_API_KEY only (Auth SMTP).
+  // Sender/reply-to come from brand_settings (editable without redeploy).
+  const resendFrom = Deno.env.get("RESEND_FROM") ?? brandSettings.SENDER_FROM;
+  const resendReplyTo = Deno.env.get("RESEND_REPLY_TO") ?? brandSettings.REPLY_TO_EMAIL;
+
   const htmlValues = buildTemplateValues(brandSettings, firstName, { html: true });
   const textValues = buildTemplateValues(brandSettings, firstName);
   const subject = renderTemplate(template.subject, textValues);
   const html = renderTemplate(template.html_body, htmlValues);
   const text = renderTemplate(template.text_body, textValues);
 
-  if (!resendApiKey || !resendFrom || !resendReplyTo) {
-    console.error("Missing Resend configuration");
+  const missingResend: string[] = [];
+  if (!resendApiKey) missingResend.push("RESEND_API_KEY");
+  if (!resendFrom) missingResend.push("SENDER_FROM (brand_settings) or RESEND_FROM");
+  if (!resendReplyTo) missingResend.push("REPLY_TO_EMAIL (brand_settings) or RESEND_REPLY_TO");
+
+  if (missingResend.length) {
+    const detail = `Resend not configured: missing ${missingResend.join(", ")}`;
+    console.error(detail);
     await logEmailAttempt(supabase, {
       leadId,
       recipient: email,
       templateKey: TEMPLATE_KEY,
       status: "failed",
-      errorMessage: "Resend environment variables are not configured",
+      errorMessage: detail,
     });
     return friendlyError(500);
   }

@@ -56,7 +56,9 @@ insert into public.brand_settings (setting_key, setting_value) values
   ('LOGO_URL', 'https://opusmedialab.com/assets/opus_logo.svg'),
   ('HERO_IMAGE_URL', 'https://opusmedialab.com/assets/contact_hero.png'),
   ('BOOKING_URL', 'REPLACE_WITH_BOOKING_URL'),
-  ('WEBSITE_URL', 'https://opusmedialab.com')
+  ('WEBSITE_URL', 'https://opusmedialab.com'),
+  ('SENDER_FROM', 'OPUS Media Lab <hello@opusmedialab.com>'),
+  ('REPLY_TO_EMAIL', 'hello@opusmedialab.com')
 on conflict (setting_key) do update set
   setting_value = excluded.setting_value,
   updated_at = now();

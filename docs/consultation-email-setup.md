@@ -125,23 +125,35 @@ Allowed placeholders:
 
 Resend Dashboard → API Keys → Create API Key.
 
-## 7. Configure Edge Function secrets
+## 7. Configure Resend
 
-Supabase Dashboard → Edge Functions → Secrets, or CLI:
+### Option A — Supabase ↔ Resend integration (recommended)
 
-```bash
-supabase secrets set \
-  RESEND_API_KEY=re_xxxxxxxx \
-  RESEND_FROM="OPUS Media Lab <hello@opusmedialab.com>" \
-  RESEND_REPLY_TO=hello@opusmedialab.com \
-  --project-ref odpdrcpazjqmmhwdvqnz
+If you connected Resend in the Resend dashboard (**Integrations → Connect to Supabase**), Supabase automatically sets `RESEND_API_KEY` for Edge Functions and configures Auth SMTP.
+
+You do **not** need separate `RESEND_FROM` / `RESEND_REPLY_TO` secrets. Those come from `brand_settings`:
+
+| Key | Default |
+|-----|---------|
+| `SENDER_FROM` | `OPUS Media Lab <hello@opusmedialab.com>` |
+| `REPLY_TO_EMAIL` | `hello@opusmedialab.com` |
+
+Update in SQL anytime:
+
+```sql
+update public.brand_settings set setting_value = 'OPUS Media Lab <hello@opusmedialab.com>', updated_at = now() where setting_key = 'SENDER_FROM';
+update public.brand_settings set setting_value = 'hello@opusmedialab.com', updated_at = now() where setting_key = 'REPLY_TO_EMAIL';
 ```
 
-| Secret | Purpose |
-|--------|---------|
-| `RESEND_API_KEY` | Resend API authentication |
-| `RESEND_FROM` | Verified sender address |
-| `RESEND_REPLY_TO` | Reply-to inbox for client replies |
+Apply `supabase/migrations/20250610130000_add_email_sender_brand_settings.sql` if those rows are missing.
+
+### Option B — Manual API key only
+
+```bash
+supabase secrets set RESEND_API_KEY=re_xxxxxxxx --project-ref odpdrcpazjqmmhwdvqnz
+```
+
+Optional overrides: `RESEND_FROM`, `RESEND_REPLY_TO` in Edge Function secrets.
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically to Edge Functions.
 
