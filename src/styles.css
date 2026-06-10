@@ -1792,14 +1792,35 @@ img { max-width: 100%; display: block; }
   .hero-meta { justify-content: center; }
   .hero-copy .lede { text-align: center; max-width: 600px; margin-left: auto; margin-right: auto; }
   .hero-actions { align-items: center; margin-top: 24px; }
-  .hero-aside { order: 2; align-items: center; }
-  .hero-figure { min-height: 0; margin-top: 0; overflow: visible; }
-  .hero-figure .img-wrap { width: 100%; box-sizing: border-box; }
-  .hero-figure { justify-content: center; }
-  .hero-glitch-stack { transform: none; }
+  .hero-aside { order: 2; align-items: center; width: 100%; }
+  .hero-figure {
+    min-height: 0;
+    margin-top: 0;
+    overflow: visible;
+    justify-content: center;
+    width: 100%;
+  }
+  .hero-figure .img-wrap {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+  }
+  .hero-glitch-stack {
+    transform: none;
+    margin-inline: auto;
+    height: auto;
+    max-height: none;
+  }
   .hero-figure.is-page-loaded .hero-glitch-stack { animation: none; }
   .hero-figure.is-page-loaded .hero-glitch-stack__ghost { animation: none; opacity: 0; }
-  .hero-glitch-stack img { max-width: 100%; }
+  .hero-glitch-stack img {
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    margin-inline: auto;
+  }
   .rail .container { grid-template-columns: repeat(2, 1fr); }
   .scroll-hint { display: none; }
   .badge { width: 96px; height: 96px; }
@@ -1810,7 +1831,17 @@ img { max-width: 100%; display: block; }
   /* inside-service chips section */
   .inside-service { grid-template-columns: 1fr; gap: 24px; }
   .inside-service__head { text-align: center; }
-  .inside-service .chip-list { justify-content: center; }
+  .inside-service .chip-list {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .inside-service .chip-list li {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    box-sizing: border-box;
+  }
   /* home stats */
   .home-stats { grid-template-columns: repeat(2, 1fr); }
   .home-stats > div { text-align: center; }
