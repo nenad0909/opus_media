@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SITE } from "../content.js";
+import { submitContactInquiry } from "../lib/contact.js";
 import {
   Link,
   PageHero,
@@ -7,7 +8,6 @@ import {
   SectionHead,
   Testimonial,
   CtaStrip,
-  BtnLime,
 } from "../components.jsx";
 export function AboutPage() {
   const { VALUES, TESTIMONIALS, SERVICES_STATS } = SITE;
@@ -71,13 +71,24 @@ export function AboutPage() {
 // ---------------------------------------------------------------
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ first: "", last: "", email: "", company: "", message: "", consent: false });
   const upd = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    if (!form.consent) return;
-    setSubmitted(true);
+    if (!form.consent || submitting) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      await submitContactInquiry(form);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -141,8 +152,18 @@ export function ContactPage() {
                     <input type="checkbox" checked={form.consent} onChange={upd("consent")} required />
                     <span>I agree to the <Link to="/privacy" style={{ color: "var(--lime)" }}>privacy policy</Link> and consent to OPUS Media Lab contacting me about my inquiry.</span>
                   </label>
+                  {error ? (
+                    <p className="body" style={{ color: "#ff6b6b", marginTop: 8 }}>{error}</p>
+                  ) : null}
                   <div className="field-full">
-                    <BtnLime onClick={() => { /* form submit handled by enter */ }} magnetic={false}>Send a message</BtnLime>
+                    <button type="submit" className="btn-lime" disabled={submitting}>
+                      <span>{submitting ? "Sending…" : "Send a message"}</span>
+                      <span className="arrow-circle">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+                          <path d="M3 8h10M9 4l4 4-4 4" />
+                        </svg>
+                      </span>
+                    </button>
                   </div>
                 </form>
               )}

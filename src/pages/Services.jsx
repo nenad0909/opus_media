@@ -191,15 +191,16 @@ export function ServiceDetailPage({ slug }) {
         </div>
       </section>
 
-      {/* Related case studies */}
-      <section className="section">
-        <div className="container">
-          <SectionHead eyebrow="Related case studies" title="Some of the work behind this practice" />
-          <div className="card-grid cols-3">
-            {relatedFinal.map((c) => <CaseCard key={c.slug} c={c} />)}
+      {slug !== "social-media-ads" && (
+        <section className="section">
+          <div className="container">
+            <SectionHead eyebrow="Related case studies" title="Some of the work behind this practice" />
+            <div className="card-grid cols-3">
+              {relatedFinal.map((c) => <CaseCard key={c.slug} c={c} />)}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* FAQ */}
       <section className="section">

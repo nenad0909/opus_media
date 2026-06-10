@@ -1,4 +1,4 @@
-import { useRef, useEffect, Fragment } from "react";
+import { useRef, useEffect, useState, Fragment } from "react";
 import { SITE } from "../content.js";
 import {
   BtnLime,
@@ -13,36 +13,61 @@ import {
 } from "../components.jsx";
 
 function Hero() {
-  const figRef = useRef(null);
-  const imgWrapRef = useRef(null);
+  const heroInnerRef = useRef(null);
   const headlineRef = useRef(null);
+  const [heroPageLoaded, setHeroPageLoaded] = useState(false);
 
-  // figure parallax
   useEffect(() => {
-    const fig = figRef.current,wrap = imgWrapRef.current;
-    if (!fig || !wrap) return;
-    let tx = 0,ty = 0,cx = 0,cy = 0,raf = 0;
-    const onMove = (e) => {
-      const r = fig.getBoundingClientRect();
-      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
-      ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    const onLoad = () => setHeroPageLoaded(true);
+    if (document.readyState === "complete") {
+      onLoad();
+      return undefined;
+    }
+    window.addEventListener("load", onLoad, { once: true });
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
+  useEffect(() => {
+    const inner = heroInnerRef.current;
+    const headline = headlineRef.current;
+    if (!inner || !headline) return;
+
+    const syncHeadlineSize = () => {
+      const innerTop = inner.getBoundingClientRect().top;
+      const headlineRect = headline.getBoundingClientRect();
+      inner.style.setProperty("--hero-headline-height", `${headline.offsetHeight}px`);
+      inner.style.setProperty("--hero-headline-offset", `${headlineRect.top - innerTop}px`);
     };
-    const onLeave = () => {tx = 0;ty = 0;};
-    fig.addEventListener("pointermove", onMove);
-    fig.addEventListener("pointerleave", onLeave);
-    const loop = () => {
-      cx += (tx - cx) * 0.08;
-      cy += (ty - cy) * 0.08;
-      wrap.style.transform = `translate3d(${cx * -12}px, ${cy * -8}px, 0)`;
-      raf = requestAnimationFrame(loop);
-    };
-    loop();
+
+    syncHeadlineSize();
+    const observer = new ResizeObserver(syncHeadlineSize);
+    observer.observe(headline);
+    observer.observe(inner);
+    window.addEventListener("resize", syncHeadlineSize);
+
     return () => {
-      fig.removeEventListener("pointermove", onMove);
-      fig.removeEventListener("pointerleave", onLeave);
-      cancelAnimationFrame(raf);
+      observer.disconnect();
+      window.removeEventListener("resize", syncHeadlineSize);
     };
   }, []);
+
+  useEffect(() => {
+    if (!heroPageLoaded) return;
+    const inner = heroInnerRef.current;
+    const headline = headlineRef.current;
+    if (!inner || !headline) return;
+
+    const syncHeadlineSize = () => {
+      const innerTop = inner.getBoundingClientRect().top;
+      const headlineRect = headline.getBoundingClientRect();
+      inner.style.setProperty("--hero-headline-height", `${headline.offsetHeight}px`);
+      inner.style.setProperty("--hero-headline-offset", `${headlineRect.top - innerTop}px`);
+    };
+
+    syncHeadlineSize();
+    const timer = window.setTimeout(syncHeadlineSize, 1200);
+    return () => window.clearTimeout(timer);
+  }, [heroPageLoaded]);
 
   // periodic glitch flash — 1s animation, 2s pause between loops
   useEffect(() => {
@@ -73,7 +98,7 @@ function Hero() {
 
   return (
     <section className="hero">
-      <div className="hero-inner container">
+      <div className="hero-inner container" ref={heroInnerRef}>
       <div className="hero-copy">
         <div className="hero-meta">
           <span>opus media lab marketing agency</span>
@@ -102,18 +127,29 @@ function Hero() {
       </div>
 
       <div className="hero-aside">
-      <div className="hero-figure" ref={figRef}>
+      <div className={"hero-figure" + (heroPageLoaded ? " is-page-loaded" : "")}>
         <div className="glow" aria-hidden="true"></div>
 
-        <div className="img-wrap" ref={imgWrapRef}>
-          <span className="frame-corner tl" aria-hidden="true"></span>
-          <span className="frame-corner tr" aria-hidden="true"></span>
-          <span className="frame-corner bl" aria-hidden="true"></span>
-          <span className="frame-corner br" aria-hidden="true"></span>
-          <img
-            src="/assets/hero_main.png"
-            alt="Three figures in motion, rendered with chromatic glitch effect"
-          />
+        <div className="img-wrap">
+          <div className="hero-glitch-stack">
+            <img
+              className="hero-glitch-stack__base"
+              src="/assets/hero_main.png"
+              alt="Three figures in motion, rendered with chromatic glitch effect"
+            />
+            <img
+              className="hero-glitch-stack__ghost hero-glitch-stack__ghost--orange"
+              src="/assets/hero_main.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <img
+              className="hero-glitch-stack__ghost hero-glitch-stack__ghost--lime"
+              src="/assets/hero_main.png"
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
         </div>
       </div>
 
