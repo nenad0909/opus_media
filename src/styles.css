@@ -1523,7 +1523,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* service list chips (service detail) */
-.chip-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; }
 .chip-list li {
   list-style: none;
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
@@ -1829,18 +1829,26 @@ img { max-width: 100%; display: block; }
   .section-head .eyebrow { align-self: center; }
   .section-head p { text-align: center; }
   /* inside-service chips section */
-  .inside-service { grid-template-columns: 1fr; gap: 24px; }
-  .inside-service__head { text-align: center; }
+  .inside-service {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    justify-items: center;
+  }
+  .inside-service__head { text-align: center; width: 100%; }
   .inside-service .chip-list {
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
+    padding: 0;
+    margin: 0;
   }
   .inside-service .chip-list li {
-    width: 100%;
-    max-width: 360px;
+    width: auto;
+    max-width: min(360px, 100%);
     text-align: center;
-    box-sizing: border-box;
+    margin-inline: auto;
+    align-self: center;
   }
   /* home stats */
   .home-stats { grid-template-columns: repeat(2, 1fr); }
