@@ -1882,6 +1882,7 @@ img { max-width: 100%; display: block; }
   .team-grid { grid-template-columns: repeat(2, 1fr); }
   .goal-tabs { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
+  .contact-info { position: static; top: auto; }
   /* cta strip */
   .cta-strip .container { grid-template-columns: 1fr; text-align: center; }
   .cta-strip .container .eyebrow { align-self: center; }
