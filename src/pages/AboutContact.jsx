@@ -94,15 +94,13 @@ export function ContactPage() {
     setSubmitting(true);
     setError("");
     try {
-      const messageParts = [];
-      if (form.last.trim()) messageParts.push(`Last name: ${form.last.trim()}`);
-      if (form.message.trim()) messageParts.push(form.message.trim());
       const result = await submitConsultation({
         email: form.email,
         firstName: form.first,
+        lastName: form.last,
         businessName: form.company,
         website: form.website,
-        message: messageParts.join("\n\n"),
+        message: form.message.trim(),
         companyWebsite: form._hp,
       });
       setSuccessMessage(

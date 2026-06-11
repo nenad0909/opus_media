@@ -4,6 +4,7 @@ const EMBEDDED_EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
 
 export const FIELD_LIMITS = {
   firstName: 80,
+  lastName: 80,
   businessName: 120,
   website: 200,
   message: 2000,

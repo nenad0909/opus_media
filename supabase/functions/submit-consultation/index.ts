@@ -1,6 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { buildTemplateValues, renderTemplate } from "../_shared/render-template.ts";
+import {
+  buildLeadNotificationValues,
+  buildTemplateValues,
+  renderLeadNotificationTemplate,
+  renderTemplate,
+} from "../_shared/render-template.ts";
 import {
   FIELD_LIMITS,
   normalizeEmail,
@@ -15,11 +20,13 @@ const corsHeaders = {
 };
 
 const DUPLICATE_WINDOW_MINUTES = 15;
-const TEMPLATE_KEY = "consultation_thank_you";
+const THANK_YOU_TEMPLATE_KEY = "consultation_thank_you";
+const ADMIN_TEMPLATE_KEY = "consultation_admin_notify";
 
 type SubmissionPayload = {
   email?: string;
   firstName?: string;
+  lastName?: string;
   businessName?: string;
   website?: string;
   message?: string;
@@ -65,6 +72,43 @@ async function logEmailAttempt(
   if (error) console.error("email_send_log insert failed:", error);
 }
 
+async function sendResendEmail(
+  resendApiKey: string,
+  payload: {
+    from: string;
+    to: string[];
+    replyTo?: string;
+    subject: string;
+    html: string;
+    text: string;
+  },
+): Promise<{ ok: true; id: string | null } | { ok: false; detail: string }> {
+  const resendRes = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: payload.from,
+      to: payload.to,
+      reply_to: payload.replyTo,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+    }),
+  });
+
+  const resendBody = await resendRes.json().catch(() => ({}));
+  if (!resendRes.ok) {
+    const detail = typeof resendBody === "object" ? JSON.stringify(resendBody) : String(resendBody);
+    return { ok: false, detail: detail.slice(0, 1000) };
+  }
+
+  const resendEmailId = typeof resendBody?.id === "string" ? resendBody.id : null;
+  return { ok: true, id: resendEmailId };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -91,6 +135,7 @@ Deno.serve(async (req) => {
   if (!email) return friendlyError(400);
 
   const firstName = trimField(payload.firstName, FIELD_LIMITS.firstName);
+  const lastName = trimField(payload.lastName, FIELD_LIMITS.lastName);
   const businessName = trimField(payload.businessName, FIELD_LIMITS.businessName);
   const website = trimField(payload.website, FIELD_LIMITS.website);
   const message = trimField(payload.message, FIELD_LIMITS.message);
@@ -130,6 +175,7 @@ Deno.serve(async (req) => {
     .insert({
       email,
       first_name: firstName || null,
+      last_name: lastName || null,
       business_name: businessName || null,
       website: website || null,
       message: message || null,
@@ -145,26 +191,40 @@ Deno.serve(async (req) => {
 
   const leadId = lead.id as string;
 
-  const [{ data: template, error: templateError }, { data: brandRows, error: brandError }] = await Promise.all([
+  const [
+    { data: thankYouTemplate, error: thankYouTemplateError },
+    { data: adminTemplate, error: adminTemplateError },
+    { data: brandRows, error: brandError },
+  ] = await Promise.all([
     supabase
       .from("email_templates")
       .select("subject, html_body, text_body")
-      .eq("template_key", TEMPLATE_KEY)
+      .eq("template_key", THANK_YOU_TEMPLATE_KEY)
+      .eq("is_active", true)
+      .maybeSingle(),
+    supabase
+      .from("email_templates")
+      .select("subject, html_body, text_body")
+      .eq("template_key", ADMIN_TEMPLATE_KEY)
       .eq("is_active", true)
       .maybeSingle(),
     supabase.from("brand_settings").select("setting_key, setting_value"),
   ]);
 
-  if (templateError || brandError || !template) {
-    console.error("Template or brand settings load failed:", templateError, brandError);
+  if (thankYouTemplateError || brandError || !thankYouTemplate) {
+    console.error("Template or brand settings load failed:", thankYouTemplateError, brandError);
     await logEmailAttempt(supabase, {
       leadId,
       recipient: email,
-      templateKey: TEMPLATE_KEY,
+      templateKey: THANK_YOU_TEMPLATE_KEY,
       status: "failed",
       errorMessage: "Template or brand settings unavailable",
     });
     return friendlyError(500);
+  }
+
+  if (adminTemplateError) {
+    console.error("Admin template load failed:", adminTemplateError);
   }
 
   const brandSettings = Object.fromEntries(
@@ -175,8 +235,10 @@ Deno.serve(async (req) => {
     Deno.env.get("RESEND_REPLY_TO") ?? brandSettings.REPLY_TO_EMAIL,
   );
   const agencyName = brandSettings.AGENCY_NAME ?? "OPUS Media Lab";
+  const notificationTo = normalizeResendReplyTo(
+    Deno.env.get("ADMIN_NOTIFICATION_TO") ?? brandSettings.NOTIFICATION_TO ?? "hello@opusmedialab.com",
+  );
 
-  // Try env secret, then brand_settings, then build from agency + reply email.
   const resendFrom = resolveResendFrom([
     Deno.env.get("RESEND_FROM"),
     brandSettings.SENDER_FROM,
@@ -186,9 +248,9 @@ Deno.serve(async (req) => {
 
   const htmlValues = buildTemplateValues(brandSettings, firstName, { html: true });
   const textValues = buildTemplateValues(brandSettings, firstName);
-  const subject = renderTemplate(template.subject, textValues);
-  const html = renderTemplate(template.html_body, htmlValues);
-  const text = renderTemplate(template.text_body, textValues);
+  const thankYouSubject = renderTemplate(thankYouTemplate.subject, textValues);
+  const thankYouHtml = renderTemplate(thankYouTemplate.html_body, htmlValues);
+  const thankYouText = renderTemplate(thankYouTemplate.text_body, textValues);
 
   const missingResend: string[] = [];
   if (!resendApiKey) missingResend.push("RESEND_API_KEY");
@@ -201,45 +263,34 @@ Deno.serve(async (req) => {
     await logEmailAttempt(supabase, {
       leadId,
       recipient: email,
-      templateKey: TEMPLATE_KEY,
+      templateKey: THANK_YOU_TEMPLATE_KEY,
       status: "failed",
       errorMessage: detail,
     });
     return friendlyError(500);
   }
 
-  const resendRes = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: resendFrom,
-      to: [email],
-      reply_to: resendReplyTo,
-      subject,
-      html,
-      text,
-    }),
+  const thankYouResult = await sendResendEmail(resendApiKey, {
+    from: resendFrom,
+    to: [email],
+    replyTo: resendReplyTo,
+    subject: thankYouSubject,
+    html: thankYouHtml,
+    text: thankYouText,
   });
 
-  const resendBody = await resendRes.json().catch(() => ({}));
-
-  if (!resendRes.ok) {
-    const detail = typeof resendBody === "object" ? JSON.stringify(resendBody) : String(resendBody);
-    console.error("Resend failed:", detail);
+  if (!thankYouResult.ok) {
+    console.error("Resend failed:", thankYouResult.detail);
     await logEmailAttempt(supabase, {
       leadId,
       recipient: email,
-      templateKey: TEMPLATE_KEY,
+      templateKey: THANK_YOU_TEMPLATE_KEY,
       status: "failed",
-      errorMessage: detail.slice(0, 1000),
+      errorMessage: thankYouResult.detail,
     });
     return friendlyError(502);
   }
 
-  const resendEmailId = typeof resendBody?.id === "string" ? resendBody.id : null;
   const sentAt = new Date().toISOString();
 
   await Promise.all([
@@ -247,11 +298,59 @@ Deno.serve(async (req) => {
     logEmailAttempt(supabase, {
       leadId,
       recipient: email,
-      templateKey: TEMPLATE_KEY,
+      templateKey: THANK_YOU_TEMPLATE_KEY,
       status: "sent",
-      resendEmailId,
+      resendEmailId: thankYouResult.id,
     }),
   ]);
+
+  if (adminTemplate && notificationTo) {
+    const submittedAt = new Date(sentAt).toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "America/Los_Angeles",
+    });
+
+    const leadInput = {
+      email,
+      firstName,
+      lastName,
+      businessName,
+      website,
+      message,
+      submittedAt,
+    };
+
+    const adminHtmlValues = buildLeadNotificationValues(leadInput, brandSettings, { html: true });
+    const adminTextValues = buildLeadNotificationValues(leadInput, brandSettings);
+    const adminSubject = renderLeadNotificationTemplate(adminTemplate.subject, adminTextValues);
+    const adminHtml = renderLeadNotificationTemplate(adminTemplate.html_body, adminHtmlValues);
+    const adminText = renderLeadNotificationTemplate(adminTemplate.text_body, adminTextValues);
+
+    const adminResult = await sendResendEmail(resendApiKey, {
+      from: resendFrom,
+      to: [notificationTo],
+      replyTo: email,
+      subject: adminSubject,
+      html: adminHtml,
+      text: adminText,
+    });
+
+    await logEmailAttempt(supabase, {
+      leadId,
+      recipient: notificationTo,
+      templateKey: ADMIN_TEMPLATE_KEY,
+      status: adminResult.ok ? "sent" : "failed",
+      resendEmailId: adminResult.ok ? adminResult.id : null,
+      errorMessage: adminResult.ok ? null : adminResult.detail,
+    });
+
+    if (!adminResult.ok) {
+      console.error("Admin notification failed:", adminResult.detail);
+    }
+  } else {
+    console.error("Admin notification skipped: template or NOTIFICATION_TO unavailable");
+  }
 
   return jsonResponse({
     ok: true,
