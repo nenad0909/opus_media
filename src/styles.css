@@ -72,7 +72,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
-   Ticker
+   Ticker — 3D cube, forward rotation
    ============================================================ */
 .ticker {
   position: relative;
@@ -83,42 +83,43 @@ img { max-width: 100%; display: block; }
   height: 44px;
   display: flex;
   align-items: center;
+  justify-content: center;
   contain: layout style;
 }
-/* ticker-track: no gap — spacing lives entirely inside ticker-half */
-.ticker-track {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
+.ticker-cube-scene {
+  width: 100%;
+  height: 44px;
+  perspective: 520px;
+  perspective-origin: 50% 50%;
+}
+.ticker-cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
   will-change: transform;
-  transform: translate3d(0, 0, 0);
+  transition: transform 0.55s cubic-bezier(0.45, 0.05, 0.2, 1);
 }
-/* Each half: items separated by 56px, PLUS a trailing sep+gap so the join
-   between half2-end and half1-start looks identical to every other gap.
-   Pattern: text [56px] sep [56px] text ... sep [56px]  ← trailing gap is padding-right */
-.ticker-half {
+.ticker-cube-face {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
-  gap: 56px;
-  padding-right: 56px;
+  justify-content: center;
+  backface-visibility: hidden;
+  background: var(--bg);
+  transform-style: preserve-3d;
 }
-.ticker-text {
+.ticker-feature {
+  display: inline-block;
   font-family: var(--sans);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.16em;
   color: var(--lime);
   text-transform: uppercase;
-  flex-shrink: 0;
-}
-.ticker-sep {
-  width: 6px;
-  height: 6px;
-  background: var(--lime);
-  transform: rotate(45deg);
-  border-radius: 1px;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ============================================================

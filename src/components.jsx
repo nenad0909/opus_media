@@ -58,65 +58,58 @@ export function Backdrop() {
 }
 
 // ---------------------------------------------------------------
-// Ticker — rAF scroll, loop width = first half's offsetWidth (no gap between halves)
+// Ticker — 3D cube rotates forward, one feature per face, 2s each
 // ---------------------------------------------------------------
-const TICKER_SPEED = 80; // px per second
+const TICKER_FACE_MS = 2000;
+const TICKER_CUBE_H = 44;
 
 export function Ticker() {
   const items = SITE.TICKER;
-  const trackRef = useRef(null);
-  const halfRef = useRef(null);
-  const xRef = useRef(0);
-  const pausedRef = useRef(false);
+  const [step, setStep] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const geometry = useMemo(() => {
+    const count = Math.max(items.length, 1);
+    const angle = 360 / count;
+    const depth = (TICKER_CUBE_H / 2) / Math.tan(Math.PI / count);
+    return { count, angle, depth };
+  }, [items.length]);
 
   useEffect(() => {
-    const track = trackRef.current;
-    const half = halfRef.current;
-    if (!track || !half) return undefined;
+    if (paused || items.length < 2) return undefined;
+    const id = setInterval(() => {
+      setStep((s) => s + 1);
+    }, TICKER_FACE_MS);
+    return () => clearInterval(id);
+  }, [paused, items.length]);
 
-    let raf;
-    let prev = performance.now();
-
-    const tick = (now) => {
-      const dt = Math.min((now - prev) / 1000, 0.05);
-      prev = now;
-      const w = half.offsetWidth;
-
-      if (w > 0 && !pausedRef.current) {
-        xRef.current -= TICKER_SPEED * dt;
-        if (xRef.current <= -w) xRef.current += w;
-        track.style.transform = `translate3d(${xRef.current}px,0,0)`;
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  const activeIndex = items.length ? step % items.length : 0;
 
   return (
     <div
       className="ticker"
-      onMouseEnter={() => { pausedRef.current = true; }}
-      onMouseLeave={() => { pausedRef.current = false; }}
+      aria-live="polite"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
-      <div className="ticker-track" ref={trackRef}>
-        {[0, 1, 2].map((copy) => (
-          <div
-            className="ticker-half"
-            key={copy}
-            ref={copy === 0 ? halfRef : undefined}
-            aria-hidden={copy > 0 ? true : undefined}
-          >
-            {items.map((t, i) => (
-              <Fragment key={i}>
-                <span className="ticker-text">{t}</span>
-                <span className="ticker-sep" aria-hidden="true" />
-              </Fragment>
-            ))}
-          </div>
-        ))}
+      <div className="ticker-cube-scene">
+        <div
+          className="ticker-cube"
+          style={{ transform: `rotateX(${-step * geometry.angle}deg)` }}
+        >
+          {items.map((feature, i) => (
+            <div
+              key={feature}
+              className="ticker-cube-face"
+              style={{
+                transform: `rotateX(${i * geometry.angle}deg) translateZ(${geometry.depth}px)`,
+              }}
+              aria-hidden={i !== activeIndex}
+            >
+              <span className="ticker-feature">{feature}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

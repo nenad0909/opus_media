@@ -1,10 +1,4 @@
--- Consultation thank-you email: email logo, revised copy, no CTA button, footer hero image
-
-update public.brand_settings set setting_value = 'https://opusmedialab.com/assets/opus_logo_email.svg', updated_at = now()
-where setting_key = 'LOGO_URL';
-
-update public.brand_settings set setting_value = 'https://opusmedialab.com/assets/blog_hero.png', updated_at = now()
-where setting_key = 'HERO_IMAGE_URL';
+-- Remove hero image border and footer divider from consultation thank-you email
 
 update public.email_templates set
   html_body = $html$
@@ -64,19 +58,5 @@ update public.email_templates set
 </body>
 </html>
 $html$,
-  text_body = $text$
-Thank you for reaching out{{FIRST_NAME}}
-
-We appreciate your interest in {{AGENCY_NAME}}. We would love to learn more about your business, your marketing goals, and where you want to grow next.
-
-Your complimentary 30-minute consultation is a focused conversation about opportunities to strengthen your online presence, attract qualified leads, and support sustainable business growth.
-
-If you have questions before we meet, simply reply to this email and our team will get back to you.
-
-— The {{AGENCY_NAME}} Team
-{{TAGLINE}}
-
-You received this email because you requested a consultation through {{WEBSITE_URL}}.
-$text$,
   updated_at = now()
 where template_key = 'consultation_thank_you';
