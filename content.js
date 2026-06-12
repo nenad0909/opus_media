@@ -48,7 +48,7 @@ window.SITE = (function () {
       "A performance-driven digital marketing agency helping ambitious brands grow through strategy, creative, paid media, and conversion optimization.",
     office: {
       label: "California Office",
-      address: "Temecula / Orange County, California",
+      address: "Temecula, California",
     },
     columns: [
       {

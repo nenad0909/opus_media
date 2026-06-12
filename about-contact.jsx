@@ -114,7 +114,7 @@ function ContactPage() {
                 </div>
                 <div>
                   <dt>Office</dt>
-                  <dd>Temecula / Orange County, California</dd>
+                  <dd>Temecula, California</dd>
                 </div>
                 <div>
                   <dt>Response time</dt>
