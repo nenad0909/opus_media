@@ -671,11 +671,7 @@ img { max-width: 100%; display: block; }
   line-height: 0;
   max-width: 100%;
   height: var(--hero-headline-height, auto);
-  transform: translateX(96px);
-  will-change: transform;
-}
-.hero-figure.is-page-loaded .hero-glitch-stack {
-  animation: hero-enter-toward-title 5s ease-in-out forwards;
+  transform: translateX(-48px);
 }
 .hero-glitch-stack img {
   display: block;
@@ -692,6 +688,22 @@ img { max-width: 100%; display: block; }
   filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));
   opacity: 1;
 }
+/* walking motion video (desktop only): VP9 WebM with an alpha channel, so the
+   page background shows through natively. hidden until the alpha probe passes,
+   then it replaces the still. */
+.hero-glitch-stack__video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  opacity: 0;
+  pointer-events: none;
+}
+.hero-glitch-stack.has-motion-video .hero-glitch-stack__video { opacity: 1; }
+.hero-glitch-stack.has-motion-video .hero-glitch-stack__base { opacity: 0; }
 .hero-glitch-stack__ghost {
   position: absolute;
   inset: 0;
@@ -700,18 +712,17 @@ img { max-width: 100%; display: block; }
   pointer-events: none;
   mix-blend-mode: screen;
 }
-.hero-figure.is-page-loaded .hero-glitch-stack__ghost {
-  animation: hero-enter-ghost 5s steps(1) forwards;
+.hero-figure.is-page-loaded .hero-glitch-stack__ghost--orange {
+  animation: hero-enter-ghost 5s steps(1), hero-idle-ghost-a 8.5s steps(1) 5s infinite;
+}
+.hero-figure.is-page-loaded .hero-glitch-stack__ghost--lime {
+  animation: hero-enter-ghost 5s steps(1), hero-idle-ghost-b 12.5s steps(1) 6.3s infinite;
 }
 .hero-glitch-stack__ghost--orange {
   filter: sepia(1) saturate(4) hue-rotate(-8deg) brightness(1.1);
 }
 .hero-glitch-stack__ghost--lime {
   filter: sepia(1) saturate(3) hue-rotate(55deg) brightness(1.05);
-}
-@keyframes hero-enter-toward-title {
-  0% { transform: translateX(96px); }
-  100% { transform: translateX(-48px); }
 }
 @keyframes hero-enter-ghost {
   0%, 100% { opacity: 0; transform: translateX(0); }
@@ -732,10 +743,138 @@ img { max-width: 100%; display: block; }
   87% { opacity: 0.38; transform: translateX(-7px); }
   88% { opacity: 0; }
 }
+
+/* idle glitch loop — brief RGB-split flickers between long quiet stretches */
+@keyframes hero-idle-ghost-a {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  4% { opacity: 0.5; transform: translateX(-11px); }
+  5.5% { opacity: 0; transform: translateX(0); }
+  7% { opacity: 0.35; transform: translateX(7px); }
+  8% { opacity: 0; transform: translateX(0); }
+  46% { opacity: 0.45; transform: translateX(-14px); }
+  47.5% { opacity: 0; transform: translateX(0); }
+  74% { opacity: 0.3; transform: translateX(9px); }
+  75% { opacity: 0; transform: translateX(0); }
+}
+@keyframes hero-idle-ghost-b {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  9% { opacity: 0.4; transform: translateX(12px); }
+  10.5% { opacity: 0; transform: translateX(0); }
+  38% { opacity: 0.45; transform: translate(-8px, 4px); }
+  39.5% { opacity: 0; transform: translateX(0); }
+  41% { opacity: 0.3; transform: translateX(15px); }
+  42% { opacity: 0; transform: translateX(0); }
+  81% { opacity: 0.4; transform: translateX(-12px); }
+  82.5% { opacity: 0; transform: translateX(0); }
+}
+
+/* horizontal slice tears — narrow bands of the image rip sideways */
+.hero-glitch-stack__slice {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.hero-glitch-stack__slice--a { filter: saturate(1.6) brightness(1.25) hue-rotate(-14deg); }
+.hero-glitch-stack__slice--b { filter: saturate(1.4) brightness(1.3) hue-rotate(38deg); }
+.hero-figure.is-page-loaded .hero-glitch-stack__slice--a {
+  animation: hero-idle-slice-a 9.5s steps(1) 5.4s infinite;
+}
+.hero-figure.is-page-loaded .hero-glitch-stack__slice--b {
+  animation: hero-idle-slice-b 13s steps(1) 7.1s infinite;
+}
+@keyframes hero-idle-slice-a {
+  0%, 100% { opacity: 0; }
+  6% { opacity: 0.9; clip-path: inset(14% 0 72% 0); transform: translateX(-16px); }
+  7.5% { opacity: 0.9; clip-path: inset(20% 0 64% 0); transform: translateX(12px); }
+  9% { opacity: 0; }
+  52% { opacity: 0.85; clip-path: inset(58% 0 30% 0); transform: translateX(14px); }
+  53.5% { opacity: 0.85; clip-path: inset(64% 0 22% 0); transform: translateX(-10px); }
+  55% { opacity: 0; }
+}
+@keyframes hero-idle-slice-b {
+  0%, 100% { opacity: 0; }
+  18% { opacity: 0.8; clip-path: inset(34% 0 52% 0); transform: translateX(18px); }
+  19.5% { opacity: 0.8; clip-path: inset(40% 0 44% 0); transform: translateX(-14px); }
+  21% { opacity: 0; }
+  68% { opacity: 0.85; clip-path: inset(6% 0 84% 0); transform: translateX(-12px); }
+  69.5% { opacity: 0.85; clip-path: inset(76% 0 12% 0); transform: translateX(10px); }
+  71% { opacity: 0; }
+}
+
+/* scan beam — lime light sweeps up through the figures, masked to the image alpha */
+.hero-glitch-stack__scan {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(to bottom,
+    rgba(214,255,61,0) 42%,
+    rgba(214,255,61,0.28) 47%,
+    rgba(234,255,150,0.75) 50%,
+    rgba(255,255,255,0.9) 50.6%,
+    rgba(214,255,61,0.28) 54%,
+    rgba(214,255,61,0) 58%);
+  background-size: 100% 300%;
+  background-repeat: no-repeat;
+  -webkit-mask-image: url("/assets/hero_main.png");
+  mask-image: url("/assets/hero_main.png");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.hero-figure.is-page-loaded .hero-glitch-stack__scan {
+  animation: hero-scan-sweep 8.5s cubic-bezier(.4,0,.2,1) 3.2s infinite;
+}
+@keyframes hero-scan-sweep {
+  0% { background-position: 50% 0%; opacity: 0; }
+  6% { opacity: 1; }
+  38% { opacity: 1; }
+  44% { background-position: 50% 100%; opacity: 0; }
+  100% { background-position: 50% 100%; opacity: 0; }
+}
+
+/* idle float — the whole figure gently drifts */
+.hero-figure.is-page-loaded .img-wrap {
+  animation: hero-idle-float 9s ease-in-out 5.2s infinite;
+}
+@keyframes hero-idle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* hover — the split goes wild while the cursor is on the figure */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero-glitch-stack:hover .hero-glitch-stack__ghost--orange {
+    animation: hero-hover-split-a 0.6s steps(1) infinite;
+  }
+  .hero-glitch-stack:hover .hero-glitch-stack__ghost--lime {
+    animation: hero-hover-split-b 0.6s steps(1) infinite;
+  }
+}
+@keyframes hero-hover-split-a {
+  0%, 100% { opacity: 0.5; transform: translateX(-10px); }
+  25% { opacity: 0.35; transform: translate(6px, 3px); }
+  50% { opacity: 0.55; transform: translateX(-14px); }
+  75% { opacity: 0.3; transform: translateX(9px); }
+}
+@keyframes hero-hover-split-b {
+  0%, 100% { opacity: 0.4; transform: translateX(11px); }
+  25% { opacity: 0.5; transform: translateX(-7px); }
+  50% { opacity: 0.3; transform: translate(13px, -3px); }
+  75% { opacity: 0.45; transform: translateX(-9px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .hero-glitch-stack { transform: translateX(-48px); }
-  .hero-figure.is-page-loaded .hero-glitch-stack { animation: none; }
   .hero-figure.is-page-loaded .hero-glitch-stack__ghost { animation: none; }
+  .hero-figure.is-page-loaded .hero-glitch-stack__slice,
+  .hero-figure.is-page-loaded .hero-glitch-stack__scan { animation: none; opacity: 0; }
+  .hero-figure.is-page-loaded .img-wrap { animation: none; }
 }
 
 .frame-corner {
@@ -1814,8 +1953,10 @@ img { max-width: 100%; display: block; }
     height: auto;
     max-height: none;
   }
-  .hero-figure.is-page-loaded .hero-glitch-stack { animation: none; }
   .hero-figure.is-page-loaded .hero-glitch-stack__ghost { animation: none; opacity: 0; }
+  .hero-figure.is-page-loaded .hero-glitch-stack__slice { animation: none; opacity: 0; }
+  .hero-figure.is-page-loaded .img-wrap { animation: none; }
+  .hero-glitch-stack__video { display: none; }
   .hero-glitch-stack img {
     max-width: 100%;
     height: auto;

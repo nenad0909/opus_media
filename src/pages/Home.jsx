@@ -15,7 +15,67 @@ import {
 function Hero() {
   const heroInnerRef = useRef(null);
   const headlineRef = useRef(null);
+  const heroVideoRef = useRef(null);
   const [heroPageLoaded, setHeroPageLoaded] = useState(false);
+  const [showMotionVideo, setShowMotionVideo] = useState(false);
+  const [motionVideoReady, setMotionVideoReady] = useState(false);
+
+  // motion video is desktop-only; mobile keeps the static image
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1101px)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (wide && !reduced) setShowMotionVideo(true);
+  }, []);
+
+  // the clip plays once: figures walk in from the right and settle into the
+  // standing pose (the end frame matches the still), then the still takes over
+  const handleMotionVideoEnded = () => {
+    setMotionVideoReady(false);
+    setShowMotionVideo(false);
+  };
+
+  // slide the whole clip from the right edge of the hero column into the
+  // still's position while its internal walk plays, so the figures appear
+  // to walk across the page and stop where the still sits
+  const startWalkAcross = () => {
+    const video = heroVideoRef.current;
+    if (!video || typeof video.animate !== "function") return;
+    const aside = video.closest(".hero-aside");
+    if (!aside) return;
+    const videoRect = video.getBoundingClientRect();
+    const asideRect = aside.getBoundingClientRect();
+    const distance = Math.max(0, asideRect.right - videoRect.right);
+    if (!distance) return;
+    video.currentTime = 0;
+    const travelMs = Math.max(1000, ((video.duration || 5) - 0.35) * 1000);
+    video.animate(
+      [{ transform: `translateX(${distance}px)` }, { transform: "translateX(0)" }],
+      { duration: travelMs, easing: "cubic-bezier(0.3, 0, 0.25, 1)", fill: "forwards" }
+    );
+  };
+
+  // the WebM has an alpha channel; verify the browser honors it (Safari
+  // decodes VP9 but drops alpha) before swapping the still for the video
+  const handleMotionVideoData = () => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+    try {
+      const probe = document.createElement("canvas");
+      probe.width = 4;
+      probe.height = 4;
+      const ctx = probe.getContext("2d");
+      ctx.drawImage(video, 0, 0, 4, 4);
+      const cornerAlpha = ctx.getImageData(0, 0, 1, 1).data[3];
+      if (cornerAlpha < 32) {
+        setMotionVideoReady(true);
+        startWalkAcross();
+      } else {
+        setShowMotionVideo(false);
+      }
+    } catch {
+      setShowMotionVideo(false);
+    }
+  };
 
   useEffect(() => {
     const onLoad = () => setHeroPageLoaded(true);
@@ -131,12 +191,26 @@ function Hero() {
         <div className="glow" aria-hidden="true"></div>
 
         <div className="img-wrap">
-          <div className="hero-glitch-stack">
+          <div className={"hero-glitch-stack" + (motionVideoReady ? " has-motion-video" : "")}>
             <img
               className="hero-glitch-stack__base"
               src="/assets/hero_main.png"
               alt="Three figures in motion, rendered with chromatic glitch effect"
             />
+            {showMotionVideo &&
+            <video
+              ref={heroVideoRef}
+              className="hero-glitch-stack__video"
+              src="/assets/hero_main_motion.webm"
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onLoadedData={handleMotionVideoData}
+              onEnded={handleMotionVideoEnded}
+              aria-hidden="true"
+            />
+            }
             <img
               className="hero-glitch-stack__ghost hero-glitch-stack__ghost--orange"
               src="/assets/hero_main.png"
@@ -149,6 +223,19 @@ function Hero() {
               alt=""
               aria-hidden="true"
             />
+            <img
+              className="hero-glitch-stack__slice hero-glitch-stack__slice--a"
+              src="/assets/hero_main.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <img
+              className="hero-glitch-stack__slice hero-glitch-stack__slice--b"
+              src="/assets/hero_main.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="hero-glitch-stack__scan" aria-hidden="true"></div>
           </div>
         </div>
       </div>
