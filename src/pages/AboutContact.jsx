@@ -9,8 +9,15 @@ import {
   Testimonial,
   CtaStrip,
 } from "../components.jsx";
+import { useSeo, breadcrumbJsonLd } from "../seo.js";
 export function AboutPage() {
   const { VALUES, TESTIMONIALS, SERVICES_STATS } = SITE;
+  useSeo({
+    title: "About OPUS Media Lab | Southern California Marketing Agency",
+    description: "OPUS Media Lab is a Temecula-based digital marketing agency helping ambitious brands across Southern California grow through strategy, paid media, and creative.",
+    path: "/about",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: "/about" }]),
+  });
   return (
     <>
       <PageHero
@@ -81,6 +88,12 @@ const INITIAL_FORM = {
 };
 
 export function ContactPage() {
+  useSeo({
+    title: "Contact OPUS Media Lab | Free Marketing Consultation",
+    description: "Get in touch with OPUS Media Lab for a free 30-minute consultation. Serving Temecula, Murrieta, Riverside, and Southern California brands.",
+    path: "/contact",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }]),
+  });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -122,7 +135,7 @@ export function ContactPage() {
           <div className="contact-grid">
             <aside className="contact-info">
               <div className="eyebrow">Get in touch</div>
-              <h2 className="title-md">Let's start the conversation</h2>
+              <h1 className="title-md">Let's start the conversation</h1>
               <dl>
                 <div>
                   <dt>Email</dt>
@@ -222,6 +235,14 @@ export function ContactPage() {
 // ---------------------------------------------------------------
 export function LegalPage({ kind }) {
   const isPrivacy = kind === "privacy";
+  useSeo({
+    title: isPrivacy ? "Privacy Policy | OPUS Media Lab" : "Terms of Service | OPUS Media Lab",
+    description: isPrivacy
+      ? "How OPUS Media Lab collects, uses, and protects data."
+      : "The terms under which OPUS Media Lab works with clients.",
+    path: isPrivacy ? "/privacy" : "/terms",
+    noindex: true,
+  });
   return (
     <>
       <PageHero

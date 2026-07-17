@@ -8,10 +8,18 @@ import {
   Testimonial,
 } from "../components.jsx";
 import { MediaFrame } from "../components/MediaFrame.jsx";
+import { useSeo, breadcrumbJsonLd } from "../seo.js";
 
 export function CaseStudiesPage() {
   const { CASE_STUDIES } = SITE;
   const featured = CASE_STUDIES.filter(c => c.featured);
+
+  useSeo({
+    title: "Case Studies & Client Results | OPUS Media Lab",
+    description: "Real campaigns, clear numbers. See how OPUS Media Lab turns strategy, creative, and performance marketing into measurable growth for our clients.",
+    path: "/case-studies",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Case Studies", path: "/case-studies" }]),
+  });
 
   return (
     <>
@@ -57,6 +65,13 @@ export function PortfolioPage() {
     ["rgba(255,106,26,0.30)", "rgba(124,255,178,0.10)"],
     ["rgba(214,255,61,0.18)", "rgba(255,106,26,0.20)"],
   ];
+
+  useSeo({
+    title: "Portfolio | OPUS Media Lab Creative Work",
+    description: "Scroll-stopping campaigns, brand systems, and conversion-focused creative from OPUS Media Lab — serving brands across Southern California.",
+    path: "/portfolio",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Portfolio", path: "/portfolio" }]),
+  });
 
   return (
     <>
@@ -107,6 +122,12 @@ export function PortfolioPage() {
 // Blog
 // ---------------------------------------------------------------
 export function BlogPage() {
+  useSeo({
+    title: "Blog | OPUS Media Lab",
+    description: "The OPUS Media Lab blog is coming soon.",
+    path: "/blog",
+    noindex: true,
+  });
   return (
     <PageHero
       eyebrow="Blog"
@@ -122,6 +143,12 @@ export function BlogPage() {
 // ---------------------------------------------------------------
 export function CareersPage() {
   const { JOBS, BENEFITS } = SITE;
+  useSeo({
+    title: "Careers at OPUS Media Lab | Join Our Team",
+    description: "OPUS Media Lab is a remote-first marketing agency hiring people who want to build meaningful growth work. See current openings.",
+    path: "/careers",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Careers", path: "/careers" }]),
+  });
   return (
     <>
       <PageHero

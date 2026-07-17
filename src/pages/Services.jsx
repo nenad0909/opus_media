@@ -13,11 +13,19 @@ import {
   FAQ,
   AnimatedTitle,
 } from "../components.jsx";
+import { useSeo, breadcrumbJsonLd, serviceJsonLd, faqJsonLd } from "../seo.js";
 
 export function ServicesHubPage() {
   const { SERVICES, SERVICE_CATEGORIES, SERVICES_STATS, GOALS, TESTIMONIALS } = SITE;
   const topSlugs = ["web-design", "app-development", "social-media-ads", "google-ads"];
   const topServices = topSlugs.map(s => SERVICES.find(x => x.slug === s)).filter(Boolean);
+
+  useSeo({
+    title: "Digital Marketing Services | OPUS Media Lab",
+    description: "SEO, Google Ads, paid social, web design, and content marketing services from OPUS Media Lab — built for ambitious brands across Southern California.",
+    path: "/services",
+    jsonLd: breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }]),
+  });
 
   return (
     <>
@@ -124,6 +132,24 @@ function GoalsTabs({ goals }) {
 export function ServiceDetailPage({ slug }) {
   const { SERVICES, CASE_STUDIES } = SITE;
   const service = SERVICES.find(s => s.slug === slug);
+  const path = "/services/" + slug;
+
+  useSeo(service ? {
+    title: `${service.title} | OPUS Media Lab`,
+    description: `${service.subtitle} Serving Temecula, Murrieta, Riverside, and Southern California.`,
+    path,
+    image: service.heroImage,
+    jsonLd: [
+      breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Services", path: "/services" },
+        { name: service.title, path },
+      ]),
+      serviceJsonLd({ name: service.title, description: service.subtitle, path }),
+      faqJsonLd(service.faqs),
+    ],
+  } : { title: "Page Not Found | OPUS Media Lab", path, noindex: true });
+
   if (!service) return <NotFoundFragment label={slug} />;
 
   // pick related case studies (loosely match on services tag)
@@ -239,6 +265,7 @@ function normalizeMatch(s) {
 }
 
 export function NotFoundFragment({ label }) {
+  useSeo({ title: "Page Not Found | OPUS Media Lab", path: window.location.pathname, noindex: true });
   return (
     <section className="section">
       <div className="container">

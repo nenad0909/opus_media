@@ -11,35 +11,60 @@ import { SITE } from "./content.js";
 import { MediaFrame } from "./components/MediaFrame.jsx";
 
 // ---------------------------------------------------------------
-// Router (hash-based)
+// Router (History API — real paths, so /services/seo etc. are real,
+// indexable, crawlable URLs instead of #/services/seo fragments)
 // ---------------------------------------------------------------
-export function useHashRoute() {
-  const [hash, setHash] = useState(() => normalizePath(window.location.hash));
-  useEffect(() => {
-    const onHash = () => setHash(normalizePath(window.location.hash));
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
-  useEffect(() => {window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });}, [hash]);
-  return hash;
+const ROUTE_CHANGE_EVENT = "opus:routechange";
+
+// one-time migration: anyone arriving via an old #/foo bookmark or link gets
+// silently moved to the clean /foo URL. Runs once at module load (before any
+// component reads location.pathname) rather than per-useRoute-instance,
+// since this component tree calls useRoute() from more than one place and a
+// per-instance effect would race — whichever instance's effect fired last
+// would find the hash already cleared by the first and silently miss it.
+if (typeof window !== "undefined" && window.location.hash.startsWith("#/")) {
+  const legacyClean = normalizePath(window.location.hash.slice(1));
+  window.history.replaceState(null, "", legacyClean);
 }
-function normalizePath(h) {
-  const raw = (h || "").replace(/^#\/?/, "/");
+
+export function useRoute() {
+  const [path, setPath] = useState(() => normalizePath(window.location.pathname));
+
+  useEffect(() => {
+    const onChange = () => setPath(normalizePath(window.location.pathname));
+    window.addEventListener("popstate", onChange);
+    window.addEventListener(ROUTE_CHANGE_EVENT, onChange);
+    return () => {
+      window.removeEventListener("popstate", onChange);
+      window.removeEventListener(ROUTE_CHANGE_EVENT, onChange);
+    };
+  }, []);
+  useEffect(() => {window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });}, [path]);
+  return path;
+}
+function normalizePath(p) {
+  const raw = p || "/";
   if (!raw || raw === "/") return "/";
   return raw.replace(/\/+$/, "") || "/";
 }
 export function navigate(to) {
   if (!to) return;
-  window.location.hash = "#" + (to.startsWith("/") ? to : "/" + to);
+  const path = normalizePath(to.startsWith("/") ? to : "/" + to);
+  if (path === normalizePath(window.location.pathname)) return;
+  window.history.pushState(null, "", path);
+  window.dispatchEvent(new Event(ROUTE_CHANGE_EVENT));
 }
 export const Link = forwardRef(function Link({ to, children, className, onClick, ...rest }, ref) {
   const handle = (e) => {
+    if (onClick) onClick(e);
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (rest.target && rest.target !== "_self") return;
     e.preventDefault();
     navigate(to);
-    if (onClick) onClick(e);
   };
   return (
-    <a href={"#" + to} className={className} onClick={handle} ref={ref} {...rest}>
+    <a href={to} className={className} onClick={handle} ref={ref} {...rest}>
       {children}
     </a>);
 
@@ -266,7 +291,7 @@ function NavFlyoutItem({ item, active, route }) {
 }
 
 export function Header() {
-  const route = useHashRoute();
+  const route = useRoute();
   const { NAV } = SITE;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

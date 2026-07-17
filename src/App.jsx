@@ -1,4 +1,4 @@
-import { useHashRoute, Layout, RouteWipe } from "./components.jsx";
+import { useRoute, Layout, RouteWipe } from "./components.jsx";
 import { HomePage } from "./pages/Home.jsx";
 import {
   ServicesHubPage,
@@ -14,7 +14,7 @@ import {
 import { AboutPage, ContactPage, LegalPage } from "./pages/AboutContact.jsx";
 
 export default function App() {
-  const route = useHashRoute();
+  const route = useRoute();
   let page = null;
 
   if (route === "/") {

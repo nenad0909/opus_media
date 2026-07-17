@@ -11,6 +11,7 @@ import {
   FAQ,
   CtaStrip,
 } from "../components.jsx";
+import { useSeo, faqJsonLd } from "../seo.js";
 
 function Hero() {
   const heroInnerRef = useRef(null);
@@ -261,6 +262,13 @@ function Hero() {
 export function HomePage() {
   const { SERVICE_CATEGORIES, CASE_STUDIES, TESTIMONIALS, HOME_FAQS, HOME_STATS } = SITE;
   const featured = CASE_STUDIES.filter((c) => c.featured);
+
+  useSeo({
+    title: "OPUS Media Lab — Digital Marketing Agency | Southern California & Inland Empire",
+    description: "OPUS Media Lab is a performance-driven digital marketing agency serving Southern California and the Inland Empire. We help ambitious brands grow through SEO, Google Ads, paid social, web design, and content marketing.",
+    path: "/",
+    jsonLd: faqJsonLd(HOME_FAQS),
+  });
 
   return (
     <>
