@@ -566,6 +566,7 @@ export function HeroParticles() {
     let points = [];
     let width = 0;
     let height = 0;
+    let rightEdge = 0;
     let frame = 0;
     let rotation = 0;
     let previousTime = performance.now();
@@ -589,8 +590,17 @@ export function HeroParticles() {
     const resize = () => {
       const rect = host.getBoundingClientRect();
       const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const headerInner = document.querySelector(".header-inner");
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
+      if (headerInner) {
+        const headerRect = headerInner.getBoundingClientRect();
+        const headerPaddingRight = parseFloat(getComputedStyle(headerInner).paddingRight) || 0;
+        rightEdge = Math.min(width, Math.max(0, headerRect.right - rect.left - headerPaddingRight));
+      } else {
+        const fallbackInset = Math.max(20, Math.min(56, width * 0.038));
+        rightEdge = width - fallbackInset;
+      }
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
       canvas.style.width = `${width}px`;
@@ -607,9 +617,8 @@ export function HeroParticles() {
       context.clearRect(0, 0, width, height);
 
       const sphereRadius = Math.min(width, height) * (width <= 720 ? 0.4 : 0.46);
-      const rightInset = Math.max(20, Math.min(56, width * 0.038));
       const projectedRadius = sphereRadius * 1.07;
-      const centerX = width - rightInset - projectedRadius;
+      const centerX = rightEdge - projectedRadius;
       const centerY = height * 0.5;
       const tilt = -0.16;
       const cosY = Math.cos(rotation);

@@ -32,13 +32,17 @@ function Hero() {
             step={0.055}
             accentIndex={1}
           />
-          <p className="lede">
-            <span className="brand">OPUS Media Lab</span> helps ambitious brands turn digital complexity into clear growth. We build marketing systems that combine strategy, performance media, creative content, and conversion optimization.
-          </p>
         </div>
+        <p className="lede hero-lede">
+          <span className="brand">OPUS Media Lab</span> helps ambitious brands turn digital complexity into clear growth. We build marketing systems that combine strategy, performance media, creative content, and conversion optimization.
+        </p>
         <div className="hero-actions">
           <BtnLime to="/contact">Book a free 30‑minute consultation</BtnLime>
           <BtnGhost to="/services">Explore services</BtnGhost>
+        </div>
+        <div className="hero-scroll" aria-hidden="true">
+          <span>Scroll</span>
+          <span>↓</span>
         </div>
       </div>
     </section>
