@@ -645,7 +645,7 @@ img {
   min-width: 0;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 12px;
   padding: 0 0 0 clamp(28px, 4vw, 64px);
 }
@@ -752,6 +752,8 @@ img {
 
 .hero .animated-title .word-wrap,
 .page-hero .animated-title .word-wrap {
+  margin-right: -0.08em;
+  padding-right: 0.08em;
   line-height: inherit;
   vertical-align: bottom;
 }
