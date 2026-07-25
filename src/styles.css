@@ -598,21 +598,21 @@ img {
   display: grid;
   min-height: calc(100svh - 80px);
   grid-template-columns: minmax(0, 1.62fr) minmax(300px, 1fr);
-  padding-block: clamp(72px, 10vh, 132px) 38px;
+  padding-block: clamp(52px, 4.5vw, 70px) 38px;
 }
 
 .hero-copy {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding-right: clamp(24px, 4vw, 72px);
 }
 
 .hero-meta {
   display: flex;
   gap: 14px;
-  margin-bottom: clamp(32px, 5vh, 60px);
+  margin-bottom: clamp(38px, 3vw, 48px);
   color: var(--muted);
   animation: hero-fade-up 420ms var(--ease-out) 40ms both;
 }
@@ -629,7 +629,7 @@ img {
 
 .hero-copy .lede {
   max-width: 670px;
-  margin-top: clamp(30px, 5vh, 58px);
+  margin-top: 30px;
   font-size: clamp(16px, 1.25vw, 19px);
   line-height: 1.6;
   animation: hero-fade-up 520ms var(--ease-out) 580ms both;
@@ -684,19 +684,19 @@ img {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
-  padding: clamp(84px, 10vw, 144px) clamp(30px, 5vw, 80px) clamp(70px, 8vw, 118px) 0;
+  padding: clamp(52px, 4.5vw, 70px) clamp(30px, 5vw, 80px) clamp(70px, 8vw, 118px) 0;
 }
 
 .page-hero-copy .eyebrow {
-  margin-bottom: clamp(28px, 5vw, 62px);
+  margin-bottom: clamp(38px, 3vw, 48px);
   animation: hero-fade-up 420ms var(--ease-out) 40ms both;
 }
 
 .page-hero-copy .kicker {
   max-width: 700px;
-  margin-top: 34px;
+  margin-top: 30px;
   color: var(--ink);
 }
 
@@ -1966,7 +1966,7 @@ code {
 
   .hero-inner {
     min-height: auto;
-    padding-block: 90px 40px;
+    padding-block: 52px 40px;
   }
 
   .hero-copy,
@@ -1998,7 +1998,7 @@ code {
   }
 
   .page-hero-copy {
-    padding-block: 90px 54px;
+    padding-block: 52px 54px;
   }
 
   .page-hero-index {
