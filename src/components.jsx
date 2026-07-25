@@ -293,15 +293,7 @@ function NavFlyoutItem({ item, active, route }) {
 export function Header() {
   const route = useRoute();
   const { NAV } = SITE;
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -318,7 +310,7 @@ export function Header() {
 
   return (
     <>
-      <header className={"header" + (scrolled ? " is-scrolled" : "") + (menuOpen ? " is-menu-open" : "")}>
+      <header className={"header" + (menuOpen ? " is-menu-open" : "")}>
         <div className="header-inner container">
         <Logo />
         <nav className="nav" aria-label="Primary">
