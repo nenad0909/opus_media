@@ -78,6 +78,7 @@ export function PortfolioPage() {
       <PageHero
         eyebrow="Portfolio"
         title="Crafted to catch eyes and move people"
+        accentIndex={2}
         subtitle="Scroll-stopping campaigns, clear messaging, and conversion-focused creative systems that help brands stand out."
         body="A selection of campaigns, brand systems, and creative production that have moved metrics — and audiences — for our partners."
         image="/assets/contact_hero.png"
@@ -225,4 +226,3 @@ export function CareersPage() {
     </>
   );
 }
-

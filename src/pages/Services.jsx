@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SITE } from "../content.js";
 import {
   Link,
@@ -242,19 +242,10 @@ export function ServiceDetailPage({ slug }) {
 }
 
 function ChipList({ items }) {
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setActive(i => (i + 1) % items.length);
-    }, 2000);
-    return () => clearInterval(id);
-  }, [items.length]);
-
   return (
     <ul className="chip-list">
-      {items.map((s, i) => (
-        <li key={s} className={i === active ? "is-active" : ""}>{s}</li>
+      {items.map((s) => (
+        <li key={s}>{s}</li>
       ))}
     </ul>
   );
@@ -279,4 +270,3 @@ export function NotFoundFragment({ label }) {
     </section>
   );
 }
-

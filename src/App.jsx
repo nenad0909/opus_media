@@ -1,4 +1,4 @@
-import { useRoute, Layout, RouteWipe } from "./components.jsx";
+import { useRoute, Layout } from "./components.jsx";
 import { HomePage } from "./pages/Home.jsx";
 import {
   ServicesHubPage,
@@ -46,7 +46,6 @@ export default function App() {
 
   return (
     <Layout>
-      <RouteWipe route={route} />
       <div className="page-transition" key={route}>
         {page}
       </div>

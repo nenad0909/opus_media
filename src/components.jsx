@@ -163,7 +163,7 @@ export function Logo({ className }) {
 // ---------------------------------------------------------------
 // Buttons (Link-aware)
 // ---------------------------------------------------------------
-export function CtaPrimary({ to, children, magnetic = true, className = "" }) {
+export function CtaPrimary({ to, children, magnetic = false, className = "" }) {
   const ref = useMagnetic(magnetic);
   return (
     <Link to={to} className={"cta-primary " + className} ref={ref}>
@@ -174,7 +174,7 @@ export function CtaPrimary({ to, children, magnetic = true, className = "" }) {
     </Link>);
 
 }
-export function BtnLime({ to, children, compact, onClick, magnetic = true, className = "" }) {
+export function BtnLime({ to, children, compact, onClick, magnetic = false, className = "" }) {
   const ref = useMagnetic(magnetic);
   const cls = ["btn-lime", compact && "compact", className].filter(Boolean).join(" ");
   const inner =
@@ -190,7 +190,7 @@ export function BtnLime({ to, children, compact, onClick, magnetic = true, class
   if (to) return <Link to={to} className={cls} ref={ref}>{inner}</Link>;
   return <button type="button" className={cls} onClick={onClick} ref={ref}>{inner}</button>;
 }
-export function BtnGhost({ to, children, compact, onClick, magnetic = true }) {
+export function BtnGhost({ to, children, compact, onClick, magnetic = false }) {
   const ref = useMagnetic(magnetic);
   const inner =
   <>
@@ -529,45 +529,24 @@ export function AnimatedTitle({
   baseDelay = 0.15,
   step = 0.07,
   as = "h1",
-  glitch = false,
-  glitchFlash = false,
+  accentIndex = null,
 }) {
-  const titleRef = useRef(null);
   const words = String(text).split(/\s+/);
   const Tag = as;
 
-  useEffect(() => {
-    if (!glitchFlash) return;
-    const el = titleRef.current;
-    if (!el) return;
-    const FLASH_MS = 1000;
-    const PAUSE_MS = 2000;
-    let timer = 0;
-    const flash = () => {
-      const freq = window.__opusGlitchFreq || "medium";
-      if (freq === "off") {
-        timer = setTimeout(flash, PAUSE_MS);
-        return;
-      }
-      el.setAttribute("data-flashing", "true");
-      setTimeout(() => el.removeAttribute("data-flashing"), FLASH_MS);
-      timer = setTimeout(flash, FLASH_MS + PAUSE_MS);
-    };
-    timer = setTimeout(flash, PAUSE_MS);
-    return () => clearTimeout(timer);
-  }, [glitchFlash]);
-
   return (
     <Tag
-      ref={glitchFlash ? titleRef : undefined}
-      className={["animated-title", glitch && "animated-title--glitch", className].filter(Boolean).join(" ")}
+      className={["animated-title", className].filter(Boolean).join(" ")}
       aria-label={text}
     >
       {words.map((w, i) =>
       <Fragment key={i}>
           <span className="word-wrap">
-            <span className="word" style={{ animationDelay: `${baseDelay + i * step}s` }}>
-              {glitch ? <span className="glitch" data-text={w}>{w}</span> : w}
+            <span
+              className={"word" + (i === accentIndex ? " is-accent" : "")}
+              style={{ animationDelay: `${baseDelay + i * step}s` }}
+            >
+              {w}
             </span>
           </span>
           {i < words.length - 1 ? " " : ""}
@@ -575,6 +554,139 @@ export function AnimatedTitle({
       )}
     </Tag>);
 
+}
+
+// ---------------------------------------------------------------
+// Hero particle field (lightweight rotating 3D sphere)
+// ---------------------------------------------------------------
+export function HeroParticles() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const host = canvas?.parentElement;
+    if (!canvas || !host) return;
+
+    const context = canvas.getContext("2d");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const smallScreen = window.matchMedia("(max-width: 720px)");
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    let points = [];
+    let width = 0;
+    let height = 0;
+    let frame = 0;
+    let rotation = 0;
+    let previousTime = performance.now();
+    let isVisible = true;
+
+    const createPoints = () => {
+      const count = smallScreen.matches ? 120 : 230;
+      points = Array.from({ length: count }, (_, index) => {
+        const y = 1 - index / (count - 1) * 2;
+        const radius = Math.sqrt(1 - y * y);
+        const theta = goldenAngle * index;
+        return {
+          x: Math.cos(theta) * radius,
+          y,
+          z: Math.sin(theta) * radius,
+          size: 0.76 + (index % 7) * 0.075,
+        };
+      });
+    };
+
+    const resize = () => {
+      const rect = host.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      createPoints();
+    };
+
+    const draw = (time) => {
+      const elapsed = Math.min(time - previousTime, 32);
+      previousTime = time;
+      if (!reduceMotion.matches) rotation += elapsed * 0.000075;
+
+      context.clearRect(0, 0, width, height);
+
+      const sphereRadius = Math.min(width, height) * (width <= 720 ? 0.4 : 0.46);
+      const rightInset = Math.max(20, Math.min(56, width * 0.038));
+      const projectedRadius = sphereRadius * 1.07;
+      const centerX = width - rightInset - projectedRadius;
+      const centerY = height * 0.5;
+      const tilt = -0.16;
+      const cosY = Math.cos(rotation);
+      const sinY = Math.sin(rotation);
+      const cosX = Math.cos(tilt);
+      const sinX = Math.sin(tilt);
+
+      points.forEach((point) => {
+        const rotatedX = point.x * cosY + point.z * sinY;
+        const firstZ = -point.x * sinY + point.z * cosY;
+        const rotatedY = point.y * cosX - firstZ * sinX;
+        const rotatedZ = point.y * sinX + firstZ * cosX;
+        const perspective = 2.8 / (2.8 - rotatedZ);
+        const depth = (rotatedZ + 1) / 2;
+        const x = centerX + rotatedX * sphereRadius * perspective;
+        const y = centerY + rotatedY * sphereRadius * perspective;
+        const dotRadius = point.size * (0.65 + depth * 1.25);
+        const alpha = 0.12 + depth * 0.58;
+
+        context.beginPath();
+        context.arc(x, y, dotRadius, 0, Math.PI * 2);
+        context.fillStyle = `rgba(214, 255, 61, ${alpha})`;
+        context.fill();
+      });
+
+      if (!reduceMotion.matches && isVisible && !document.hidden) {
+        frame = requestAnimationFrame(draw);
+      }
+    };
+
+    const render = () => {
+      cancelAnimationFrame(frame);
+      previousTime = performance.now();
+      draw(previousTime);
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+      render();
+    });
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) render();
+      else cancelAnimationFrame(frame);
+    }, { threshold: 0.01 });
+    const onVisibilityChange = () => {
+      if (!document.hidden && isVisible) render();
+      else cancelAnimationFrame(frame);
+    };
+
+    resizeObserver.observe(host);
+    visibilityObserver.observe(host);
+    reduceMotion.addEventListener("change", render);
+    smallScreen.addEventListener("change", render);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    resize();
+    render();
+
+    return () => {
+      cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      visibilityObserver.disconnect();
+      reduceMotion.removeEventListener("change", render);
+      smallScreen.removeEventListener("change", render);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="hero-particles" aria-hidden="true" />;
 }
 
 // ---------------------------------------------------------------
@@ -692,8 +804,6 @@ export function Testimonial({ t }) {
 export function Layout({ children }) {
   return (
     <>
-      <Backdrop />
-      <Ticker />
       <Header />
       <main className="page">{children}</main>
       <Footer />
@@ -704,31 +814,21 @@ export function Layout({ children }) {
 // ---------------------------------------------------------------
 // Page hero (non-home)
 // ---------------------------------------------------------------
-export function PageHero({ eyebrow, title, subtitle, body, ctaTo, ctaLabel, image, imageAlt }) {
+export function PageHero({ eyebrow, title, subtitle, body, ctaTo, ctaLabel, image, imageAlt, accentIndex = 1 }) {
   return (
     <section className="page-hero">
+      <HeroParticles />
       <div className="container">
         <div className="page-hero-copy">
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          <AnimatedTitle text={title} className="title-xl" baseDelay={0.25} step={0.075} glitch glitchFlash />
+          <AnimatedTitle text={title} className="title-xl" baseDelay={0.1} step={0.045} accentIndex={accentIndex} />
           {subtitle && <p className="kicker fade-up-in" style={{ animationDelay: "0.5s" }}>{subtitle}</p>}
-          {body && <p className="lede fade-up-in" style={{ animation: "fade-up 0.9s cubic-bezier(.2,.7,.2,1) 0.6s forwards" }}>{body}</p>}
-          {ctaTo && <div className="fade-up-in" style={{ animationDelay: "0.75s" }}><BtnLime to={ctaTo}>{ctaLabel || "Book a free consultation"}</BtnLime></div>}
+          {body && <p className="lede fade-up-in" style={{ animationDelay: "0.6s" }}>{body}</p>}
+          {ctaTo && <div className="fade-up-in" style={{ animationDelay: "0.7s" }}><BtnLime to={ctaTo}>{ctaLabel || "Book a free consultation"}</BtnLime></div>}
         </div>
-        <div className="page-hero-figure">
-          <MediaFrame
-            slot="pageHero"
-            ratio="16/9"
-            matchHeight
-            src={image || null}
-            alt={imageAlt || eyebrow || ""}
-            meta={!image && eyebrow ? eyebrow.toUpperCase() : undefined}
-            className="page-hero-figure__media"
-          />
-          <span className="frame-corner tl" aria-hidden="true" />
-          <span className="frame-corner tr" aria-hidden="true" />
-          <span className="frame-corner bl" aria-hidden="true" />
-          <span className="frame-corner br" aria-hidden="true" />
+        <div className="page-hero-index" aria-hidden="true">
+          <span className="page-hero-index__slash">/</span>
+          <span className="page-hero-index__label">{eyebrow || "Studio"}</span>
         </div>
       </div>
     </section>);
