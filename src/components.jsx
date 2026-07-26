@@ -560,6 +560,7 @@ export function HeroParticles() {
     if (!canvas || !host) return;
 
     const context = canvas.getContext("2d");
+    const homeTitle = host.querySelector(".headline");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const smallScreen = window.matchMedia("(max-width: 720px)");
     const goldenAngle = Math.PI * (3 - Math.sqrt(5));
@@ -567,6 +568,7 @@ export function HeroParticles() {
     let width = 0;
     let height = 0;
     let rightEdge = 0;
+    let homeTitleTop = 0;
     let frame = 0;
     let rotation = 0;
     let previousTime = performance.now();
@@ -593,6 +595,9 @@ export function HeroParticles() {
       const headerInner = document.querySelector(".header-inner");
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
+      if (homeTitle) {
+        homeTitleTop = Math.max(0, homeTitle.getBoundingClientRect().top - rect.top);
+      }
       if (headerInner) {
         const headerRect = headerInner.getBoundingClientRect();
         const headerPaddingRight = parseFloat(getComputedStyle(headerInner).paddingRight) || 0;
@@ -619,7 +624,9 @@ export function HeroParticles() {
       const sphereRadius = Math.min(width, height) * (width <= 720 ? 0.4 : 0.46);
       const projectedRadius = sphereRadius * 1.07;
       const centerX = rightEdge - projectedRadius;
-      const centerY = height * 0.5;
+      const centerY = width <= 720 && homeTitle
+        ? homeTitleTop + projectedRadius
+        : height * 0.5;
       const tilt = -0.16;
       const cosY = Math.cos(rotation);
       const sinY = Math.sin(rotation);
@@ -670,6 +677,7 @@ export function HeroParticles() {
     };
 
     resizeObserver.observe(host);
+    if (homeTitle) resizeObserver.observe(homeTitle);
     visibilityObserver.observe(host);
     reduceMotion.addEventListener("change", render);
     smallScreen.addEventListener("change", render);

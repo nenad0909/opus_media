@@ -2162,7 +2162,7 @@ code {
   }
 
   .home-stats {
-    border-left: 0;
+    border-left: 1px solid var(--line);
   }
 
   .service-card {
@@ -2172,7 +2172,8 @@ code {
   .top-service-row {
     grid-template-columns: 42px minmax(0, 1fr) 40px;
     gap: 12px;
-    min-height: 112px;
+    min-height: 0;
+    padding-block: 24px;
   }
 
   .top-service-row .tag {
