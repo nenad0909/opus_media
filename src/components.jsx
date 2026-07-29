@@ -563,8 +563,6 @@ export function HeroParticles() {
     const homeTitle = host.querySelector(".headline");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const smallScreen = window.matchMedia("(max-width: 720px)");
-    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-    let points = [];
     let width = 0;
     let height = 0;
     let rightEdge = 0;
@@ -574,20 +572,65 @@ export function HeroParticles() {
     let previousTime = performance.now();
     let isVisible = true;
 
-    const createPoints = () => {
-      const count = smallScreen.matches ? 120 : 230;
-      points = Array.from({ length: count }, (_, index) => {
-        const y = 1 - index / (count - 1) * 2;
-        const radius = Math.sqrt(1 - y * y);
-        const theta = goldenAngle * index;
-        return {
-          x: Math.cos(theta) * radius,
-          y,
-          z: Math.sin(theta) * radius,
-          size: 0.76 + (index % 7) * 0.075,
+    // Geodesic wireframe: an icosahedron subdivided once (80 faces / 42
+    // vertices / 120 edges), normalised onto the unit sphere. Resolution
+    // independent, so it is built once rather than rebuilt on resize.
+    const buildIcosphere = (subdivisions) => {
+      const normalize = ([x, y, z]) => {
+        const length = Math.hypot(x, y, z);
+        return [x / length, y / length, z / length];
+      };
+      const t = (1 + Math.sqrt(5)) / 2;
+      const vertices = [
+        [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
+        [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
+        [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
+      ].map(normalize);
+      let faces = [
+        [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
+        [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+        [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
+        [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+      ];
+
+      for (let pass = 0; pass < subdivisions; pass += 1) {
+        const cache = new Map();
+        const midpoint = (a, b) => {
+          const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+          const cached = cache.get(key);
+          if (cached !== undefined) return cached;
+          const [ax, ay, az] = vertices[a];
+          const [bx, by, bz] = vertices[b];
+          vertices.push(normalize([(ax + bx) / 2, (ay + by) / 2, (az + bz) / 2]));
+          const index = vertices.length - 1;
+          cache.set(key, index);
+          return index;
         };
+        const next = [];
+        faces.forEach(([a, b, c]) => {
+          const ab = midpoint(a, b);
+          const bc = midpoint(b, c);
+          const ca = midpoint(c, a);
+          next.push([a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]);
+        });
+        faces = next;
+      }
+
+      const seen = new Set();
+      const edges = [];
+      faces.forEach(([a, b, c]) => {
+        [[a, b], [b, c], [c, a]].forEach(([p, q]) => {
+          const key = p < q ? `${p}:${q}` : `${q}:${p}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          edges.push([p, q]);
+        });
       });
+
+      return { vertices, edges };
     };
+
+    const { vertices, edges } = buildIcosphere(1);
 
     const resize = () => {
       const rect = host.getBoundingClientRect();
@@ -611,7 +654,6 @@ export function HeroParticles() {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      createPoints();
     };
 
     const draw = (time) => {
@@ -633,22 +675,33 @@ export function HeroParticles() {
       const cosX = Math.cos(tilt);
       const sinX = Math.sin(tilt);
 
-      points.forEach((point) => {
-        const rotatedX = point.x * cosY + point.z * sinY;
-        const firstZ = -point.x * sinY + point.z * cosY;
-        const rotatedY = point.y * cosX - firstZ * sinX;
-        const rotatedZ = point.y * sinX + firstZ * cosX;
+      const projected = vertices.map(([vx, vy, vz]) => {
+        const rotatedX = vx * cosY + vz * sinY;
+        const firstZ = -vx * sinY + vz * cosY;
+        const rotatedY = vy * cosX - firstZ * sinX;
+        const rotatedZ = vy * sinX + firstZ * cosX;
         const perspective = 2.8 / (2.8 - rotatedZ);
-        const depth = (rotatedZ + 1) / 2;
-        const x = centerX + rotatedX * sphereRadius * perspective;
-        const y = centerY + rotatedY * sphereRadius * perspective;
-        const dotRadius = point.size * (0.65 + depth * 1.25);
-        const alpha = 0.12 + depth * 0.58;
+        return {
+          x: centerX + rotatedX * sphereRadius * perspective,
+          y: centerY + rotatedY * sphereRadius * perspective,
+          depth: (rotatedZ + 1) / 2,
+        };
+      });
+
+      context.lineCap = "round";
+      edges.forEach(([a, b]) => {
+        const start = projected[a];
+        const end = projected[b];
+        // Depth drives both weight and opacity, so the far side of the cage
+        // recedes instead of reading as a flat tangle of lines.
+        const depth = (start.depth + end.depth) / 2;
 
         context.beginPath();
-        context.arc(x, y, dotRadius, 0, Math.PI * 2);
-        context.fillStyle = `rgba(214, 255, 61, ${alpha})`;
-        context.fill();
+        context.moveTo(start.x, start.y);
+        context.lineTo(end.x, end.y);
+        context.strokeStyle = `rgba(214, 255, 61, ${0.05 + depth * 0.35})`;
+        context.lineWidth = 0.45 + depth * 0.95;
+        context.stroke();
       });
 
       if (!reduceMotion.matches && isVisible && !document.hidden) {
