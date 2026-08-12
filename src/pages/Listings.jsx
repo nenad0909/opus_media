@@ -49,9 +49,9 @@ export function CaseStudiesPage() {
 
 export function PortfolioPage() {
   const { PORTFOLIO } = SITE;
-  // varied grid spans for visual rhythm
-  const spans = [6, 6, 4, 4, 4, 8, 4, 6, 6, 12];
-  const spanRatios = { 4: "5/7", 6: "16/9", 8: "16/9", 12: "16/9" };
+  // Portrait imagery needs a portrait frame regardless of its position in the grid.
+  const wideSpans = [6, 6, 8, 6, 6, 12];
+  let wideIndex = 0;
   // varied gradient pairs
   const palettes = [
     ["rgba(255,106,26,0.30)", "rgba(214,255,61,0.12)"],
@@ -89,9 +89,9 @@ export function PortfolioPage() {
         <div className="container">
           <div className="portfolio-grid">
             {PORTFOLIO.map((p, i) => {
-              const span = spans[i % spans.length];
+              const ratio = p.ratio || "16/9";
+              const span = ratio === "5/7" ? 4 : wideSpans[wideIndex++ % wideSpans.length];
               const [a, b] = palettes[i % palettes.length];
-              const ratio = p.ratio || spanRatios[span] || "16/9";
               return (
                 <div className={"portfolio-item span-" + span} key={p.id} style={{ "--g-from": a, "--g-to": b }}>
                   <MediaFrame
