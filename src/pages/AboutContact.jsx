@@ -21,6 +21,7 @@ export function AboutPage() {
   return (
     <>
       <PageHero
+        shape="helix"
         eyebrow="About"
         title="We help brands enter a new season of growth"
         subtitle="OPUS Media Lab is built for companies that want clarity, momentum, and measurable performance from their marketing."
@@ -246,6 +247,7 @@ export function LegalPage({ kind }) {
   return (
     <>
       <PageHero
+        shape={isPrivacy ? "dodecahedron" : "hourglass"}
         eyebrow={isPrivacy ? "Privacy" : "Terms"}
         title={isPrivacy ? "Privacy Policy" : "Terms of Service"}
         subtitle={isPrivacy ? "How we collect, use, and protect data." : "The terms under which we work together."}

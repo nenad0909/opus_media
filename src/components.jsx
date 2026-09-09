@@ -9,6 +9,7 @@ import {
 } from "react";
 import { SITE } from "./content.js";
 import { MediaFrame } from "./components/MediaFrame.jsx";
+import { buildHeroShape } from "./heroShapes.js";
 
 // ---------------------------------------------------------------
 // Router (History API — real paths, so /services/seo etc. are real,
@@ -551,7 +552,7 @@ export function AnimatedTitle({
 // ---------------------------------------------------------------
 // Hero particle field (lightweight rotating 3D sphere)
 // ---------------------------------------------------------------
-export function HeroParticles() {
+export function HeroParticles({ shape = "icosphere" }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -572,65 +573,9 @@ export function HeroParticles() {
     let previousTime = performance.now();
     let isVisible = true;
 
-    // Geodesic wireframe: an icosahedron subdivided once (80 faces / 42
-    // vertices / 120 edges), normalised onto the unit sphere. Resolution
-    // independent, so it is built once rather than rebuilt on resize.
-    const buildIcosphere = (subdivisions) => {
-      const normalize = ([x, y, z]) => {
-        const length = Math.hypot(x, y, z);
-        return [x / length, y / length, z / length];
-      };
-      const t = (1 + Math.sqrt(5)) / 2;
-      const vertices = [
-        [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
-        [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-        [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
-      ].map(normalize);
-      let faces = [
-        [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
-        [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
-        [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
-        [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
-      ];
-
-      for (let pass = 0; pass < subdivisions; pass += 1) {
-        const cache = new Map();
-        const midpoint = (a, b) => {
-          const key = a < b ? `${a}:${b}` : `${b}:${a}`;
-          const cached = cache.get(key);
-          if (cached !== undefined) return cached;
-          const [ax, ay, az] = vertices[a];
-          const [bx, by, bz] = vertices[b];
-          vertices.push(normalize([(ax + bx) / 2, (ay + by) / 2, (az + bz) / 2]));
-          const index = vertices.length - 1;
-          cache.set(key, index);
-          return index;
-        };
-        const next = [];
-        faces.forEach(([a, b, c]) => {
-          const ab = midpoint(a, b);
-          const bc = midpoint(b, c);
-          const ca = midpoint(c, a);
-          next.push([a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]);
-        });
-        faces = next;
-      }
-
-      const seen = new Set();
-      const edges = [];
-      faces.forEach(([a, b, c]) => {
-        [[a, b], [b, c], [c, a]].forEach(([p, q]) => {
-          const key = p < q ? `${p}:${q}` : `${q}:${p}`;
-          if (seen.has(key)) return;
-          seen.add(key);
-          edges.push([p, q]);
-        });
-      });
-
-      return { vertices, edges };
-    };
-
-    const { vertices, edges } = buildIcosphere(1);
+    // Each route draws a different silhouette from the same wireframe
+    // family; the home page keeps the original geodesic sphere.
+    const { vertices, edges, tilt, scale: shapeScale } = buildHeroShape(shape);
 
     const resize = () => {
       const rect = host.getBoundingClientRect();
@@ -663,13 +608,13 @@ export function HeroParticles() {
 
       context.clearRect(0, 0, width, height);
 
-      const sphereRadius = Math.min(width, height) * (width <= 720 ? 0.4 : 0.46);
+      const sphereRadius =
+        Math.min(width, height) * (width <= 720 ? 0.4 : 0.46) * shapeScale;
       const projectedRadius = sphereRadius * 1.07;
       const centerX = rightEdge - projectedRadius;
       const centerY = width <= 720 && homeTitle
         ? homeTitleTop + projectedRadius
         : height * 0.5;
-      const tilt = -0.16;
       const cosY = Math.cos(rotation);
       const sinY = Math.sin(rotation);
       const cosX = Math.cos(tilt);
@@ -746,7 +691,7 @@ export function HeroParticles() {
       smallScreen.removeEventListener("change", render);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, []);
+  }, [shape]);
 
   return <canvas ref={canvasRef} className="hero-particles" aria-hidden="true" />;
 }
@@ -816,9 +761,11 @@ export function ServiceCategoryCard({ index, title, body, bullets }) {
 // Case card
 // ---------------------------------------------------------------
 export function CaseCard({ c }) {
-  const onCardClick = () => navigate("/case-studies");
+  // Case studies with a live site link out; the rest route to the case studies index.
+  const go = () =>
+    c.url ? window.open(c.url, "_blank", "noopener,noreferrer") : navigate("/case-studies");
   return (
-    <article className="case-card" onClick={onCardClick} style={{ cursor: "pointer" }}>
+    <article className="case-card" onClick={go} style={{ cursor: "pointer" }}>
       <MediaFrame
         slot="caseStudy"
         ratio={c.ratio || "16/9"}
@@ -834,9 +781,9 @@ export function CaseCard({ c }) {
       </ul>
       <span
         className="btn-text"
-        onClick={(e) => {e.stopPropagation();navigate("/case-studies");}}>
+        onClick={(e) => {e.stopPropagation();go();}}>
         
-        Learn more
+        {c.url ? "Visit live site" : "Learn more"}
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
           <path d="M3 8h10M9 4l4 4-4 4" />
         </svg>
@@ -876,10 +823,10 @@ export function Layout({ children }) {
 // ---------------------------------------------------------------
 // Page hero (non-home)
 // ---------------------------------------------------------------
-export function PageHero({ eyebrow, title, subtitle, body, ctaTo, ctaLabel, image, imageAlt, accentIndex = 1 }) {
+export function PageHero({ eyebrow, title, subtitle, body, ctaTo, ctaLabel, image, imageAlt, accentIndex = 1, shape = "icosphere" }) {
   return (
     <section className="page-hero">
-      <HeroParticles />
+      <HeroParticles shape={shape} />
       <div className="container">
         <div className="page-hero-copy">
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}

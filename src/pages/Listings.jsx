@@ -24,6 +24,7 @@ export function CaseStudiesPage() {
   return (
     <>
       <PageHero
+        shape="crystal"
         eyebrow="Case Studies"
         title="Our success stories"
         subtitle="Real campaigns. Clear numbers. Measurable growth."
@@ -49,9 +50,9 @@ export function CaseStudiesPage() {
 
 export function PortfolioPage() {
   const { PORTFOLIO } = SITE;
-  // Portrait imagery needs a portrait frame regardless of its position in the grid.
-  const wideSpans = [6, 6, 8, 6, 6, 12];
-  let wideIndex = 0;
+  // Uniform spans keep every row edge-to-edge and every tile the same height:
+  // wide (16/9) tiles sit three per row, tall (5/7) tiles four per row.
+  const spanFor = (ratio) => (ratio === "5/7" ? 3 : 4);
   // varied gradient pairs
   const palettes = [
     ["rgba(255,106,26,0.30)", "rgba(214,255,61,0.12)"],
@@ -76,6 +77,7 @@ export function PortfolioPage() {
   return (
     <>
       <PageHero
+        shape="knot"
         eyebrow="Portfolio"
         title="Crafted to catch eyes and move people"
         accentIndex={2}
@@ -90,10 +92,21 @@ export function PortfolioPage() {
           <div className="portfolio-grid">
             {PORTFOLIO.map((p, i) => {
               const ratio = p.ratio || "16/9";
-              const span = ratio === "5/7" ? 4 : wideSpans[wideIndex++ % wideSpans.length];
+              const span = spanFor(ratio);
               const [a, b] = palettes[i % palettes.length];
+              const Tile = p.url ? "a" : "div";
+              const linkProps = p.url
+                ? { href: p.url, target: "_blank", rel: "noopener noreferrer" }
+                : {};
               return (
-                <div className={"portfolio-item span-" + span} key={p.id} style={{ "--g-from": a, "--g-to": b }}>
+                <Tile
+                  className={
+                    "portfolio-item span-" + span + (p.url ? " portfolio-item--link" : "")
+                  }
+                  key={p.id}
+                  style={{ "--g-from": a, "--g-to": b }}
+                  {...linkProps}
+                >
                   <MediaFrame
                     slot={ratio === "5/7" ? "portfolioTall" : "portfolioWide"}
                     ratio={ratio}
@@ -106,8 +119,16 @@ export function PortfolioPage() {
                     <h3>{p.title}</h3>
                     <div className="client">{p.client}</div>
                     <p className="desc">{p.description}</p>
+                    {p.url ? (
+                      <span className="portfolio-item__visit">
+                        Visit live site
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" aria-hidden="true">
+                          <path d="M5 11L11 5M6 5h5v5" />
+                        </svg>
+                      </span>
+                    ) : null}
                   </div>
-                </div>
+                </Tile>
               );
             })}
           </div>
@@ -131,6 +152,7 @@ export function BlogPage() {
   });
   return (
     <PageHero
+      shape="cylinder"
       eyebrow="Blog"
       title="We're working on it — coming soon."
       image="/assets/blog_hero.png"
@@ -153,6 +175,7 @@ export function CareersPage() {
   return (
     <>
       <PageHero
+        shape="spire"
         eyebrow="Careers"
         title="Join OPUS Media Lab"
         subtitle="It takes a team to build outstanding things."

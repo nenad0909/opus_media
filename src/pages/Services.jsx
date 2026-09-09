@@ -30,6 +30,7 @@ export function ServicesHubPage() {
   return (
     <>
       <PageHero
+        shape="torus"
         eyebrow="Services"
         title="Personalized services for measurable growth"
         subtitle="Every business is different, so our services are built around your goals, market, audience, and current stage of growth."
@@ -161,6 +162,7 @@ export function ServiceDetailPage({ slug }) {
   return (
     <>
       <PageHero
+        shape="cubeLattice"
         eyebrow={"Services / " + service.title}
         title={service.title}
         subtitle={service.subtitle}

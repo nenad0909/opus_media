@@ -438,6 +438,31 @@ const TICKER = [
   const CASE_STUDIES = [
     {
       featured: true,
+      slug: "briefline",
+      title: "Independent news briefing cuts through the noise",
+      client: "Briefline",
+      industry: "Media",
+      services: ["Web Design", "SEO", "Content Creation"],
+      segment: "B2C",
+      summary: "A news aggregator organized into clean category briefings — Markets, Politics, Tech and more — with timestamped stories, clear source credits, and a reading layout stripped of everything but the headline.",
+      result: "News without the noise",
+      image: "/images/portfolio/16x9/briefline.jpg",
+      url: "https://briefline.news",
+    },
+    {
+      featured: true,
+      slug: "bluza-boutique",
+      title: "Fashion boutique launches an editorial-led storefront",
+      client: "Bluza Boutique",
+      industry: "Fashion",
+      services: ["Web Design", "Content Creation"],
+      segment: "B2C",
+      summary: "An editorial storefront for a women’s fashion label, anchored by a full-bleed video hero, serif display type, and a quiet navigation that keeps the collection in view.",
+      result: "A new way to dress",
+      image: "/images/portfolio/16x9/bluza.jpg",
+      url: "https://bluzaboutique.netlify.app",
+    },
+    {
       slug: "property-numbers",
       title: "Free calculators help buyers and sellers make smarter real estate decisions",
       client: "Property Numbers",
@@ -449,7 +474,6 @@ const TICKER = [
       image: "/images/portfolio/16x9/property_numb.jpg",
     },
     {
-      featured: true,
       slug: "renovation-numbers",
       title: "Home improvement brand launches a free cost calculator hub",
       client: "Renovation Numbers",
@@ -569,17 +593,22 @@ const TICKER = [
   // Portfolio
   // -----------------------------------------------------------
   const PORTFOLIO = [
-    { id: "p11", title: "Artist gallery website",                 client: "Lola",               category: "Web Design",   description: "A portfolio website created for painter Lola and her gallery, giving her artwork a bold digital home and visitors a clear way to explore the collection.", image: "/images/portfolio/16x9/lolaj_homepage.webp", ratio: "16/9" },
-    { id: "p1",  title: "Product photoshoot for social media", client: "Alurie Beauty",      category: "Photography",  description: "Editorial product photography series shot for paid social and DTC PDPs.", image: "/images/portfolio/16x9/alurie.png" },
-    { id: "p2",  title: "Localized Meta campaign",             client: "Verdure",            category: "Paid Social",   description: "DACH-focused Meta campaign with locally-shot creative and tailored hooks.", image: "/images/portfolio/16x9/verdure.png" },
-    { id: "p3",  title: "Summer beauty campaign",              client: "Alurie Beauty",      category: "Campaign",      description: "A seasonal campaign system spanning paid, organic, and email.", image: "/images/portfolio/5x7/alurie_2.png", ratio: "5/7" },
-    { id: "p4",  title: "Reddit and X.com paid social ads",    client: "Lumen Technology",   category: "Paid Social",   description: "Feed-native creative built for Reddit and X.com — platform-specific hooks, formats, and copy tuned to each audience.", image: "/images/portfolio/5x7/lumen.jpg?v=2", ratio: "5/7" },
-    { id: "p5",  title: "Fall B2B campaign",                   client: "Northpoint Capital", category: "B2B",           description: "Account-targeted creative built around a seasonal positioning shift.", image: "/images/portfolio/5x7/northpoint.png", ratio: "5/7" },
-    { id: "p6",  title: "Black Friday early access campaign",  client: "Atelier Norden",     category: "Campaign",      description: "Pre-BFCM campaign creating early-access urgency for VIP segments.", image: "/images/portfolio/16x9/norden.png" },
-    { id: "p7",  title: "Agency self-rebrand",                 client: "OPUS Media Lab",     category: "Branding",      description: "An internal rebrand exploring type, identity, and motion principles.", image: "/images/portfolio/5x7/rebrand.jpg", ratio: "5/7" },
-    { id: "p8",  title: "Real estate investment campaign",     client: "Meridian Realty",    category: "Lead Gen",      description: "A premium investor acquisition funnel with bespoke creative.", image: "/images/portfolio/16x9/meredian.png" },
-    { id: "p9",  title: "Solar energy campaign",               client: "Helios Clean Energy", category: "Campaign",     description: "Educational-first campaign creative tuned to off-season demand.", image: "/images/portfolio/16x9/helios.png" },
-    { id: "p10", title: "Certified product trust campaign",    client: "Rooted Food Co.",    category: "Branding",      description: "Trust-led campaign elevating certifications, sourcing, and provenance.", image: "/images/portfolio/16x9/rooted.jpg" },
+    // Wide (16/9) tiles — laid out three per row.
+    { id: "p12", title: "Independent news briefing",              client: "Briefline",           category: "Web Design",   description: "A news aggregator built around clean category briefings — Markets, Politics, Tech and more — with timestamped stories, source credits, and a reading layout stripped of everything but the headline.", image: "/images/portfolio/16x9/briefline.jpg", url: "https://briefline.news" },
+    { id: "p13", title: "Fashion boutique storefront",            client: "Bluza Boutique",      category: "Web Design",   description: "An editorial-led storefront for a women's fashion label, anchored by a full-bleed video hero, serif display type, and a quiet navigation that keeps the collection in view.", image: "/images/portfolio/16x9/bluza.jpg", url: "https://bluzaboutique.netlify.app" },
+    { id: "p11", title: "Artist gallery website",                 client: "Lola",                category: "Web Design",   description: "A portfolio website created for painter Lola and her gallery, giving her artwork a bold digital home and visitors a clear way to explore the collection.", image: "/images/portfolio/16x9/lolaj_homepage.webp" },
+    { id: "p1",  title: "Product photoshoot for social media",    client: "Alurie Beauty",       category: "Photography",  description: "Editorial product photography series shot for paid social and DTC PDPs.", image: "/images/portfolio/16x9/alurie.png" },
+    { id: "p2",  title: "Localized Meta campaign",                client: "Verdure",             category: "Paid Social",  description: "DACH-focused Meta campaign with locally-shot creative and tailored hooks.", image: "/images/portfolio/16x9/verdure.png" },
+    { id: "p6",  title: "Black Friday early access campaign",     client: "Atelier Norden",      category: "Campaign",     description: "Pre-BFCM campaign creating early-access urgency for VIP segments.", image: "/images/portfolio/16x9/norden.png" },
+    { id: "p8",  title: "Real estate investment campaign",        client: "Meridian Realty",     category: "Lead Gen",     description: "A premium investor acquisition funnel with bespoke creative.", image: "/images/portfolio/16x9/meredian.png" },
+    { id: "p9",  title: "Solar energy campaign",                  client: "Helios Clean Energy", category: "Campaign",     description: "Educational-first campaign creative tuned to off-season demand.", image: "/images/portfolio/16x9/helios.png" },
+    { id: "p10", title: "Certified product trust campaign",       client: "Rooted Food Co.",     category: "Branding",     description: "Trust-led campaign elevating certifications, sourcing, and provenance.", image: "/images/portfolio/16x9/rooted.jpg" },
+
+    // Tall (5/7) tiles — laid out four per row.
+    { id: "p3",  title: "Summer beauty campaign",                 client: "Alurie Beauty",       category: "Campaign",     description: "A seasonal campaign system spanning paid, organic, and email.", image: "/images/portfolio/5x7/alurie_2.png", ratio: "5/7" },
+    { id: "p4",  title: "Reddit and X.com paid social ads",       client: "Lumen Technology",    category: "Paid Social",  description: "Feed-native creative built for Reddit and X.com — platform-specific hooks, formats, and copy tuned to each audience.", image: "/images/portfolio/5x7/lumen.jpg?v=2", ratio: "5/7" },
+    { id: "p5",  title: "Fall B2B campaign",                      client: "Northpoint Capital",  category: "B2B",          description: "Account-targeted creative built around a seasonal positioning shift.", image: "/images/portfolio/5x7/northpoint.png", ratio: "5/7" },
+    { id: "p7",  title: "Agency self-rebrand",                    client: "OPUS Media Lab",      category: "Branding",     description: "An internal rebrand exploring type, identity, and motion principles.", image: "/images/portfolio/5x7/rebrand.jpg", ratio: "5/7" },
   ];
 
   // -----------------------------------------------------------
